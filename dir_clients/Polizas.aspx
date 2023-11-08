@@ -56,13 +56,12 @@
 </asp:Content>
 
 <asp:Content ID="Content" ContentPlaceHolderID="PageContent" runat="server">
-    <dx:EntityServerModeDataSource ID="dsPolizas" runat="server" EnableInsert="true" EnableUpdate="true" EnableDelete="True"  OnSelecting="dsPlizas_Selecting" OnInserting="dsPlizas_Inserting" OnUpdating="dsPlizas_Updating" OnDeleting="dsPlizas_Deleting" ContextTypeName="ClientsDataModel" TableName="vpoliza" />
+    <dx:EntityServerModeDataSource ID="dsPolizas" runat="server" EnableInsert="true" EnableUpdate="true" EnableDelete="True"  OnSelecting="dsPolizas_Selecting" OnInserting="dsPolizas_Inserting" OnUpdating="dsPolizas_Updating" ContextTypeName="ClientsDataModel" TableName="vpoliza" />
     <asp:SqlDataSource ID="dsClients" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="SELECT uid_client, nombre FROM vclients order by nombre" />
     <asp:SqlDataSource ID="dsCpy" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="select uid_company, company from dbo.vcompany order by company" />
     <asp:SqlDataSource ID="dsProdPol" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="select uid_prodpol, prodpol from dbo.vprodpol order by prodpol" />
     
-    <dx:ASPxGridView runat="server" ID="GridView" ClientInstanceName="gridView" KeyFieldName="uid_poliza" KeyboardSupport="True" EnablePagingGestures="False"
-        CssClass="grid-view" Width="100%"
+    <dx:ASPxGridView runat="server" ID="GridView" ClientInstanceName="gridView" KeyFieldName="uid_poliza" KeyboardSupport="True" EnablePagingGestures="False" Width="100%"
         DataSourceID="dsPolizas"
         OnRowUpdating="GridView_RowUpdating" OnRowInserting="GridView_RowInserting" OnRowDeleting="GridView_RowDeleting" AutoGenerateColumns="False"
         OnCustomErrorText="GridView_CustomErrorText" 

@@ -80,6 +80,7 @@ namespace dir_clients
                 DBFunciones.IContext.vclients.Add(i);
                 DBFunciones.IContext.SaveChanges();
                 e.Handled = true;
+                DBFunciones.IContext = null;
             }
             catch(DbEntityValidationException x)
             {
@@ -111,6 +112,7 @@ namespace dir_clients
                     i.email = (string)e.Values["email"];
                     i.email2 = (string)e.Values["email2"];
                     i.relacionado = (string)e.Values["relacionado"];
+                    i.archivero = (string)e.Values["archivero"];
                     DBFunciones.IContext.SaveChanges();
                 }
                 e.Handled= true;

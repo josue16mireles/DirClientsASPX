@@ -21,26 +21,22 @@ namespace dir_clients
 
         }
 
-        protected void dsPlizas_Selecting(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceSelectEventArgs e)
+        protected void dsPolizas_Selecting(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceSelectEventArgs e)
         {
             e.QueryableSource = DBFunciones.IContext.vpolizas.AsQueryable();
             e.KeyExpression = "uid_poliza";
         }
 
-        protected void dsPlizas_Inserting(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceEditEventArgs e)
+        protected void dsPolizas_Inserting(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceEditEventArgs e)
         {
 
         }
 
-        protected void dsPlizas_Updating(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceEditEventArgs e)
+        protected void dsPolizas_Updating(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceEditEventArgs e)
         {
 
         }
 
-        protected void dsPlizas_Deleting(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceEditEventArgs e)
-        {
-
-        }
         protected void GridView_RowUpdating(object sender, ASPxDataUpdatingEventArgs e)
         {
             var x = (ASPxGridView)sender;

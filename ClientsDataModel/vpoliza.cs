@@ -16,7 +16,7 @@ namespace ClientsDataModel
         [Column(Order = 1)]
         public Guid uid_client { get; set; }
 
-        [StringLength(50)]
+        [StringLength(100)]
         public string nombre { get; set; }
 
         [Key]
@@ -28,29 +28,27 @@ namespace ClientsDataModel
         [Column(Order = 3)]
         public DateTime fech_inicio { get; set; }
 
-        [Key]
-        [Column(Order = 4)]
-        public DateTime fech_vencimiento { get; set; }
+        public DateTime? fech_vencimiento { get; set; }
 
-        [StringLength(15)]
+        [StringLength(10)]
         public string FrecuenciaDePago { get; set; }
 
         public DateTime? nxt_pago { get; set; }
 
         [Key]
-        [Column(Order = 5)]
+        [Column(Order = 4)]
         public Guid uid_prod_pol { get; set; }
 
         [StringLength(50)]
         public string prodpol { get; set; }
 
         [Key]
-        [Column(Order = 6)]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int tipo_pago { get; set; }
+        [Column(Order = 5)]
+        [StringLength(5)]
+        public string tipo_pago { get; set; }
 
         [Key]
-        [Column(Order = 7)]
+        [Column(Order = 6)]
         public Guid uid_company { get; set; }
 
         [StringLength(50)]

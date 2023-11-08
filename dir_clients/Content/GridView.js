@@ -7,7 +7,8 @@
 
     function AdjustSize() {
         var height = Math.max(0, document.documentElement.clientHeight);
-        grid.SetHeight(height);
+        //grid.SetHeight(height);
+        gridView.SetHeight(height);
     }  
 
     function onGridViewSelectionChanged(s, e) {
@@ -42,6 +43,8 @@
                 break;
         }
     }
+    
+    
     function deleteSelectedRecords() {
         if(confirm('Confirm Delete?')) {
             gridView.PerformCallback('delete');
@@ -67,26 +70,27 @@
         adjustPageControls();
         searchButtonEdit.SetFocus();
     }
+    /**COMBOBOX COMPAÑIA PRODUCTO **/
+    var isResetRequired = false;
+    function onSelectedCpyChanged(s, e) {
+        isResetRequired = true;
+        grid.GetEditor("uid_prod_pol").PerformCallback(s.GetValue());
+    }
 
+    function onProdPolEndCallback(s, e) {
+        if (isResetRequired) {
+            isResetRequired = false;
+            s.SetSelectedIndex(0);
+        }
+    }
+    /**COMBOBOX COMPAÑIA PRODUCTO **/
+    
+    window.onSelectedCpyChanged = onSelectedCpyChanged;
+    window.onProdPolEndCallback = onProdPolEndCallback;
     window.onGridViewInit = onGridViewInit;
     window.onGridViewSelectionChanged = onGridViewSelectionChanged;
     window.onPageToolbarItemClick = onPageToolbarItemClick;
-    window.onFilterPanelExpanded = onFilterPanelExpanded;
+    window.onFilterPanelExpanded = onFilterPanelExpanded;//panel de busqueda
     window.onFiltersNavBarItemClick = onFiltersNavBarItemClick;
+    
 })();
-
-
-
-
-var isResetRequired = false;
-function onSelectedCpyChanged(s, e) {
-    isResetRequired = true;
-    grid.GetEditor("uid_prod_pol").PerformCallback(s.GetValue());
-}
-
-function onProdPolEndCallback(s, e) {
-    if (isResetRequired) {
-        isResetRequired = false;
-        s.SetSelectedIndex(0);
-    }
-}

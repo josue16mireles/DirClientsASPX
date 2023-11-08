@@ -4,9 +4,96 @@
 
 <asp:Content ContentPlaceHolderID="Head" runat="server">
     <link rel="stylesheet" type="text/css" href='<%# ResolveUrl("~/Content/GridView.css") %>' />
-    <script type="text/javascript" src='<%# ResolveUrl("~/Content/GridView.js") %>'></script>
+    <%--<script type="text/javascript" src='<%# ResolveUrl("~/Content/GridView.js") %>'></script>--%>
 </asp:Content>
 <asp:Content ContentPlaceHolderID="PageToolbar" runat="server">
+    <script type="text/javascript">
+
+        function onGridViewInit(s, e) {
+            AddAdjustmentDelegate(adjustGridView);
+            updateToolbarButtonsState();
+            AdjustSize(); //ajusta el tamaño del grid segun el tamaño de la pantalla
+        }
+        function AdjustSize() {
+            var height = Math.max(0, document.documentElement.clientHeight);
+            //grid.SetHeight(height);
+            gridView.SetHeight(height);
+        }
+
+        function onGridViewSelectionChanged(s, e) {
+            updateToolbarButtonsState();
+        }
+        function adjustGridView() {
+            gridView.AdjustControl();
+        }
+        function updateToolbarButtonsState() {
+            var enabled = gridView.GetSelectedRowCount() > 0;
+            pageToolbar.GetItemByName("Delete").SetEnabled(enabled);
+            pageToolbar.GetItemByName("Export").SetEnabled(enabled);
+
+        }
+        function onPageToolbarItemClick(s, e) {
+            switch (e.item.name) {
+                case "ToggleFilterPanel":
+                    toggleFilterPanel();
+                    break;
+                case "Save":
+                    if (!(HasChanges()))
+                        return;
+                    _savecancel(true);
+                    break;
+                case "Cancel":
+                    if (HasChanges()) {
+                        _savecancel(false);
+                    }
+                    else {
+                        return;
+                    }
+                    break;
+                case "New":
+                    gridView.AddNewRow();
+                    break;
+                case "Delete":
+                    deleteSelectedRecords();
+                    break;
+                case "Export":
+                    gridView.ExportTo(ASPxClientGridViewExportFormat.Xlsx);
+                    break;
+            }
+        }
+        function deleteSelectedRecords() {
+            if (confirm('Confirm Delete?')) {
+                gridView.PerformCallback('delete');
+            }
+        }
+        function toggleFilterPanel() {
+            filterPanel.Toggle();
+        }
+
+        function onFilterPanelExpanded(s, e) {
+            adjustPageControls();
+            searchButtonEdit.SetFocus();
+        }
+        /**PARA GUARDAR CAMBIOS DE CARDVIEW Y GRIDVIEW EN EL Client_Edit**/
+        function HasChanges() {
+            return (cvClientEdit.batchEditApi.HasChanges() || gridView.batchEditApi.HasChanges());
+        }
+        function _savecancel(_cambios) {
+            if (_cambios) {
+                cvClientEdit.UpdateEdit();
+                gridView.UpdateEdit();
+            } else {
+                cvClientEdit.CancelEdit();
+                gridView.CancelEdit();
+            }
+        }
+        function OnEndCallback(s, e) {
+            if (!HasChanges()) {
+                //loadingpanel.Hide();
+            }
+        }
+        /**PARA GUARDAR CAMBIOS DE CARDVIEW Y GRIDVIEW EN EL Client_Edit**/
+    </script>
     <dx:ASPxMenu runat="server" ID="PageToolbar" ClientInstanceName="pageToolbar"
         ItemAutoWidth="false" ApplyItemStyleToTemplates="true" ItemWrap="false"
         AllowSelectItem="false" SeparatorWidth="0"
@@ -19,11 +106,20 @@
         <Items>
             <dx:MenuItem Enabled="false">
                 <Template>
-                    <h1>Polizas</h1>
+                    <h1>Cliente</h1>
                 </Template>
+            </dx:MenuItem> 
+            <dx:MenuItem Name="Save" Text="Guardar" Alignment="Right" AdaptivePriority="2">
+                <Image Url="Content/Images/save.svg" />
+            </dx:MenuItem>
+             <dx:MenuItem Name="Cancel" Text="Cancelar" Alignment="Right" AdaptivePriority="2">
+                <Image Url="Content/Images/cancel.svg" />
             </dx:MenuItem>
             <dx:MenuItem Name="New" Text="New" Alignment="Right" AdaptivePriority="2">
                 <Image Url="Content/Images/add.svg" />
+            </dx:MenuItem>
+            <dx:MenuItem Name="Delete" Text="Delete" Alignment="Right" AdaptivePriority="2">
+                <Image Url="Content/Images/delete.svg" />
             </dx:MenuItem>
             <dx:MenuItem Name="Edit" Text="Edit" Alignment="Right" AdaptivePriority="2">
                 <Image Url="Content/Images/edit.svg" />
@@ -57,6 +153,7 @@
                          <dx:ASPxCardView ID="cvClientEdit" ClientInstanceName="cvClientEdit" runat="server" 
                             DataSourceID="esmdClient" KeyFieldName="uid_client" AutoGenerateColumns="False"
                             OnCardUpdating="cvClientEdit_CardUpdating" OnCustomErrorText="cvClientEdit_CustomErrorText" Border-BorderStyle="Solid">
+                            <ClientSideEvents EndCallback="OnEndCallback" />
                             <SettingsPager Visible="False"/>
                             <SettingsEditing Mode="Batch">
                                 <BatchEditSettings EditMode="Card" StartEditAction="DblClick" />
@@ -72,9 +169,6 @@
                             </SettingsCommandButton>
                             <SettingsDataSecurity AllowDelete="False" AllowInsert="False" AllowReadUnlistedFieldsFromClientApi="True" />
                             <SettingsBehavior AllowFocusedCard="true" AllowSelectByCardClick="true" AllowSelectSingleCardOnly="true" />
-                            <SettingsPopup>
-                                <FilterControl AutoUpdatePosition="False"></FilterControl>
-                            </SettingsPopup>
 
                             <SettingsExport ExportSelectedCardsOnly="False"/>
 
@@ -165,35 +259,26 @@
                                     <dx:ASPxGridView ID="GridView" runat="server" AutoGenerateColumns="false" ClientInstanceName="gridView" 
                                         DataSourceID="esmdPolizasClient" KeyFieldName="uid_poliza" 
                                         OnCustomCallback="GridView_CustomCallback" OnRowInserting="GridView_RowInserting" 
-                                        OnRowUpdating="GridView_RowUpdating" OnCustomErrorText="GridView_CustomErrorText">
-                                       
+                                        OnRowUpdating="GridView_RowUpdating" OnCustomErrorText="GridView_CustomErrorText" 
+                                        OnCommandButtonInitialize="GridView_CommandButtonInitialize">
+
+                                       <ClientSideEvents Init="onGridViewInit" SelectionChanged="onGridViewSelectionChanged" EndCallback="OnEndCallback"  /> 
                                         <SettingsResizing ColumnResizeMode="Control" />
-
                                         <SettingsBehavior AllowFocusedRow="true" AllowSelectByRowClick="true" AllowEllipsisInText="true" AllowDragDrop="false"/>
-
                                         <SettingsEditing Mode="Batch" UseFormLayout="false" NewItemRowPosition="Bottom">
                                             <BatchEditSettings EditMode="Row" StartEditAction="DblClick" />
                                         </SettingsEditing>   
-                                        
-                                        <SettingsSearchPanel CustomEditorID="SearchButtonEdit" />
-
-                                        <Settings VerticalScrollBarMode="auto" VerticalScrollableHeight="730" HorizontalScrollBarMode="Auto" ShowHeaderFilterButton="true"/>
-
+                                        <Settings VerticalScrollBarMode="auto" VerticalScrollableHeight="620" HorizontalScrollBarMode="Auto" ShowHeaderFilterButton="true"/>
                                         <SettingsPager PageSize="100" EnableAdaptivity="true">
                                             <PageSizeItemSettings Visible="true"></PageSizeItemSettings>
                                         </SettingsPager>
-                                        
                                         <SettingsCookies StorePaging="False" />
-
                                         <SettingsExport EnableClientSideExportAPI="true" ExportSelectedRowsOnly="true" />
-
                                         <Styles>
                                             <Cell Wrap="false" />
                                             <PagerBottomPanel CssClass="pager" />
                                             <FocusedRow CssClass="focused" />
                                         </Styles>
-
-
                                         <Paddings PaddingTop="0px" />
 
                                         <Columns>
@@ -202,10 +287,11 @@
                                             <dx:GridViewDataTextColumn FieldName="no_poliza" Caption="Poliza" ShowInCustomizationForm="true" Visible="true" VisibleIndex="2" Width="270px">
                                             </dx:GridViewDataTextColumn>
                                             <dx:GridViewDataDateColumn FieldName="fech_inicio" Caption="Fech Ini." ShowInCustomizationForm="true" Visible="true" VisibleIndex="3" Width="270px">
+                                                <Settings AllowFilterBySearchPanel="True" AllowHeaderFilter="False" AutoFilterCondition="Contains" FilterMode="DisplayText" ShowInFilterControl="True" />
                                             </dx:GridViewDataDateColumn>
-                                            <dx:GridViewDataDateColumn FieldName="fech_vencimiento" Caption="Vencimiento" ShowInCustomizationForm="true" Visible="true" VisibleIndex="4" Width="270px">
+                                            <dx:GridViewDataDateColumn FieldName="fech_vencimiento" Caption="Vencimiento" ReadOnly="true" ShowInCustomizationForm="true" Visible="true" VisibleIndex="4" Width="270px">
                                             </dx:GridViewDataDateColumn>
-                                            <dx:GridViewDataComboBoxColumn FieldName="FrecuenciaDePago" Caption="Frec. Pago" ShowInCustomizationForm="true" Visible="true" VisibleIndex="5" Width="270px">
+                                            <dx:GridViewDataComboBoxColumn FieldName="tipo_pago" Caption="Frec. Pago" ShowInCustomizationForm="true" Visible="true" VisibleIndex="5" Width="270px">
                                                 <PropertiesComboBox>
                                                     <Items>
                                                         <dx:ListEditItem Text="Mensual" Value="1" />
@@ -215,7 +301,7 @@
                                                     </Items>
                                                 </PropertiesComboBox>
                                             </dx:GridViewDataComboBoxColumn>
-                                            <dx:GridViewDataDateColumn FieldName="nxt_pago" Caption="Sig. Pago" ShowInCustomizationForm="true" Visible="true" VisibleIndex="6" Width="270px">
+                                            <dx:GridViewDataDateColumn FieldName="nxt_pago" Caption="Sig. Pago" ReadOnly="true" ShowInCustomizationForm="true" Visible="true" VisibleIndex="6" Width="270px">
                                             </dx:GridViewDataDateColumn>
                                             <dx:GridViewDataComboBoxColumn FieldName="uid_prod_pol" Caption="Producto" ShowInCustomizationForm="true" Visible="true" VisibleIndex="7" Width="270px">
                                                 <PropertiesComboBox DataSourceID="dsProdPol" TextField="prodpol" ValueField="uid_prodpol"></PropertiesComboBox>

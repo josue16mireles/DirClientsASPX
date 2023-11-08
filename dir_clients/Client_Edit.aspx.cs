@@ -3,7 +3,9 @@ using DevExpress.Web;
 using dir_clients.Classes;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Validation;
 using System.Linq;
+using System.Net.Sockets;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -61,7 +63,24 @@ namespace dir_clients
 
         protected void esmdClient_Updating(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceEditEventArgs e)
         {//updating cardview
+            var id = (Guid)e.Keys[cvClientEdit.KeyFieldName];
 
+
+
+            var i = DBFunciones.IContext.vclients.Find(id);
+            if (i != null) 
+            {
+                i.nombre = (string)e.Values["nombre"];
+                i.direccion = (string)e.Values["direccion"];
+                i.telefono = (string)e.Values["telefono"];
+                i.celular = (string)e.Values["celular"];
+                i.email = (string)e.Values["email"];
+                i.email2 = (string)e.Values["email2"];
+                i.relacionado = (string)e.Values["relacionado"];
+                i.archivero = (string)e.Values["archivero"];
+                DBFunciones.IContext.SaveChanges();
+            }
+            e.Handled = true;
         }
 
         protected void cvClientEdit_CardUpdating(object sender, DevExpress.Web.Data.ASPxDataUpdatingEventArgs e)
@@ -99,11 +118,87 @@ namespace dir_clients
         }
         protected void esmdPolizasClient_Inserting(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceEditEventArgs e)
         {//inserting gridview
+            try
+            {
+                if (IsNullOrEmpty((string)e.Values["no_poliza"]))
+                    throw new Exception("Ingrese un número de poliza en el campo.");
+                if ((DateTime)e.Values["fech_inicio"] == null)
+                    throw new Exception("Seleccione una fecha de inicio en el calendario.");
+                if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
+                    throw new Exception("Seleccione la frecuencia de pago en la lista.");
+                //if ((Guid?)e.Values["uid_prod_pol"] == null)
+                //    throw new Exception("Seleccione un producto de la lista.");
+                //if ((Guid?)e.Values["uid_company"] == null)
+                //    throw new Exception("Seleccione una compañia de la lista.");
 
+                var i = new vpoliza
+                {
+                    uid_poliza = Guid.NewGuid(),
+                    uid_client = SessionMov,
+                    no_poliza = (string)e.Values["no_poliza"],
+                    fech_inicio = (DateTime)e.Values["fech_inicio"],
+                    uid_prod_pol = (Guid)e.Values["uid_prod_pol"],
+                    tipo_pago = (string)e.Values["tipo_pago"],
+                    uid_company = (Guid)e.Values["uid_company"],
+                };
+                DBFunciones.IContext.vpolizas.Add(i);
+                DBFunciones.IContext.SaveChanges();
+                e.Handled = true;
+                DBFunciones.IContext = null;
+            }
+            catch (DbEntityValidationException x)
+            {
+                foreach (var eve in x.EntityValidationErrors)
+                {
+                    Console.WriteLine(@"La entidad de tipo ""{0}"" en el estado ""{1}"" tiene los siguientes errores de validación:",
+                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                        Console.WriteLine(@"La entidad de tipo ""{0}"" en el estado ""{1}"" tiene los siguientes errores de validación:",
+                            ve.PropertyName, ve.ErrorMessage);
+                }
+                throw;
+            }
         }
         protected void esmdPolizasClient_Updating(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceEditEventArgs e)
         {//updating gridview
+            try
+            {
+                var id = (Guid)e.Keys[GridView.KeyFieldName];
 
+                if (IsNullOrEmpty((string)e.Values["no_poliza"]))
+                    throw new Exception("Ingrese un número de poliza en el campo.");
+                if ((DateTime)e.Values["fech_inicio"] == null)
+                    throw new Exception("Seleccione una fecha de inicio en el calendario.");
+                if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
+                    throw new Exception("Seleccione la frecuencia de pago en la lista.");
+                //if ((Guid?)e.Values["uid_prod_pol"] == null)
+                //    throw new Exception("Seleccione un producto de la lista.");
+                //if ((Guid?)e.Values["uid_company"] == null)
+                //    throw new Exception("Seleccione una compañia de la lista.");
+
+                var i = DBFunciones.IContext.vpolizas.Find(id);
+                if(i != null)
+                {
+                    i.no_poliza = (string)e.Values["no_poliza"];
+                    i.fech_inicio = (DateTime)e.Values["fech_inicio"];
+                    i.uid_prod_pol = (Guid)e.Values["uid_prod_pol"];
+                    i.tipo_pago = (string)e.Values["tipo_pago"];
+                    i.uid_company = (Guid)e.Values["uid_company"];
+                }
+                e.Handled= true;
+            }
+            catch (DbEntityValidationException x)
+            {
+                foreach (var eve in x.EntityValidationErrors)
+                {
+                    Console.WriteLine(@"La entidad de tipo ""{0}"" en el estado ""{1}"" tiene los siguientes errores de validación:",
+                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                        Console.WriteLine(@"La entidad de tipo ""{0}"" en el estado ""{1}"" tiene los siguientes errores de validación:",
+                            ve.PropertyName, ve.ErrorMessage);
+                }
+                throw;
+            }
         }
 
         protected void GridView_CustomCallback(object sender, ASPxGridViewCustomCallbackEventArgs e)
@@ -143,6 +238,12 @@ namespace dir_clients
                         e.ErrorText = i.Substring(0, index);
                     break;
             }
+        }
+
+        protected void GridView_CommandButtonInitialize(object sender, ASPxGridViewCommandButtonEventArgs e)
+        {
+            if (e.ButtonType == ColumnCommandButtonType.Update || e.ButtonType == ColumnCommandButtonType.Cancel || e.ButtonType == ColumnCommandButtonType.PreviewChanges)
+                e.Visible = false;
         }
     }
 }

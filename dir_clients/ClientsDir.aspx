@@ -75,7 +75,7 @@
                     gridView.PerformCallback();
                     break;
             }
-            loadingpanel.Hide();
+            //loadingpanel.Hide();
         }
     </script>
     <dx:ASPxCallback ID="cbpage" ClientInstanceName="cbpage" runat="server" OnCallback="cbpage_Callback">
@@ -83,8 +83,7 @@
     </dx:ASPxCallback>
     <dx:EntityServerModeDataSource ID="dsClients" runat="server" EnableInsert="true" EnableUpdate="true" EnableDelete="True"  OnSelecting="dsClients_Selecting" OnInserting="dsClients_Inserting" OnUpdating="dsClients_Updating" OnDeleting="dsClients_Deleting" ContextTypeName="ClientsDataModel" TableName="vclients" />
     <dx:ASPxGridView runat="server" ID="GridView" ClientInstanceName="gridView" 
-        KeyFieldName="uid_client" KeyboardSupport="true" EnablePagingGestures="False"
-        CssClass="grid-view" Width="100%"
+        KeyFieldName="uid_client" KeyboardSupport="true" EnablePagingGestures="False" Width="100%"
         DataSourceID="dsClients"
         OnCustomCallback="GridView_CustomCallback"
         OnRowUpdating="GridView_RowUpdating" OnRowInserting="GridView_RowInserting" OnRowDeleting="GridView_RowDeleting" AutoGenerateColumns="False"
@@ -147,19 +146,6 @@
             <dx:GridViewDataHyperLinkColumn FieldName="nombre" Name="Nombre" Caption="Nombre" ShowInCustomizationForm="True" VisibleIndex="2" Width="300px">
                 <PropertiesHyperLinkEdit EnableClientSideAPI="true" NavigateUrlFormatString="javascript:edicion()"></PropertiesHyperLinkEdit>
             </dx:GridViewDataHyperLinkColumn>
-            <%--<dx:GridViewDataHyperLinkColumn FieldName="uid_client" CellStyle-HorizontalAlign="Left" Caption="Nombre" Width="300px" ExportCellStyle-HorizontalAlign="Left">
-                <Settings FilterMode="DisplayText" SortMode="DisplayText" />
-                <PropertiesHyperLinkEdit NavigateUrlFormatString="Client_Edit.aspx?id={0}" TextField="nombre" />
-                <EditItemTemplate>
-                    <dx:ASPxTextBox runat="server" ID="SubjectTextBox"
-                        Value='<%# Bind("nombre") %>'
-                        ValidationSettings-ValidationGroup="<%# Container.ValidationGroup %>">
-                        <ValidationSettings Display="Dynamic" ErrorDisplayMode="ImageWithTooltip">
-                            <RequiredField IsRequired="true" />
-                        </ValidationSettings>
-                    </dx:ASPxTextBox>
-                </EditItemTemplate>
-            </dx:GridViewDataHyperLinkColumn>--%>
             <dx:GridViewDataTextColumn FieldName="direccion" Name="direccion" Caption="Dirección" ShowInCustomizationForm="True" VisibleIndex="3" Width="450px">
             </dx:GridViewDataTextColumn> 
             <dx:GridViewDataTextColumn FieldName="telefono" Name="telefono" Caption="Teléfono" ShowInCustomizationForm="True" VisibleIndex="4" Width="100px">

@@ -22,8 +22,12 @@ namespace ClientsDataModel
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<vpoliza>()
-                            .Property(e => e.FrecuenciaDePago)
-                            .IsUnicode(false);
+                .Property(e => e.FrecuenciaDePago)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<vpoliza>()
+                .Property(e => e.tipo_pago)
+                .IsUnicode(false);
 
         }
     }
