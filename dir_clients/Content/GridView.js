@@ -74,7 +74,7 @@
     var isResetRequired = false;
     function onSelectedCpyChanged(s, e) {
         isResetRequired = true;
-        grid.GetEditor("uid_prod_pol").PerformCallback(s.GetValue());
+        grid.GetEditor("uid_prodpol").PerformCallback(s.GetValue());
     }
 
     function onProdPolEndCallback(s, e) {

@@ -9,8 +9,7 @@ using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using static System.String;
-using DevExpress.Web.Internal.XmlProcessor;
-using ClientsDataModel.test;
+using System.Data.Entity.Validation;
 
 namespace dir_clients
 {
@@ -18,7 +17,12 @@ namespace dir_clients
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            if (!Page.IsPostBack)
+            {
+                Session["uidmov"] = null;
+                //Session["CurrentPage"] = "Clientes";
+                GridView.DataBind();
+            }
         }
 
         protected void dsPolizas_Selecting(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceSelectEventArgs e)
@@ -29,12 +33,90 @@ namespace dir_clients
 
         protected void dsPolizas_Inserting(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceEditEventArgs e)
         {
+            try
+            {
+                //if (IsNullOrEmpty((string)e.Values["no_poliza"]))
+                //    throw new Exception("Ingrese un número de poliza en el campo.");
+                //if ((DateTime)e.Values["fech_inicio"] == null)
+                //    throw new Exception("Seleccione una fecha de inicio en el calendario.");
+                //if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
+                //    throw new Exception("Seleccione la frecuencia de pago en la lista.");
+                //if ((Guid?)e.Values["uid_prodpol"] == null)
+                //    throw new Exception("Seleccione un producto de la lista.");
+                //if ((Guid?)e.Values["uid_company"] == null)
+                //    throw new Exception("Seleccione una compañia de la lista.");
 
+                var i = new vpoliza
+                {
+                    uid_poliza = Guid.NewGuid(),
+                    uid_client = (Guid)e.Values["uid_client"],
+                    no_poliza = (string)e.Values["no_poliza"],
+                    fech_inicio = (DateTime)e.Values["fech_inicio"],
+                    uid_prodpol = (Guid)e.Values["uid_prodpol"],
+                    tipo_pago = (string)e.Values["tipo_pago"],
+                    uid_company = (Guid)e.Values["uid_company"],
+                };
+                DBFunciones.IContext.vpolizas.Add(i);
+                DBFunciones.IContext.SaveChanges();
+                e.Handled = true;
+                DBFunciones.IContext = null;
+            }
+            catch (DbEntityValidationException x)
+            {
+                foreach (var eve in x.EntityValidationErrors)
+                {
+                    Console.WriteLine(@"La entidad de tipo ""{0}"" en el estado ""{1}"" tiene los siguientes errores de validación:",
+                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                        Console.WriteLine(@"La entidad de tipo ""{0}"" en el estado ""{1}"" tiene los siguientes errores de validación:",
+                            ve.PropertyName, ve.ErrorMessage);
+                }
+                throw;
+            }
         }
 
         protected void dsPolizas_Updating(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceEditEventArgs e)
         {
+            try
+            {
+                var id = (Guid)e.Keys[GridView.KeyFieldName];
 
+                //if (IsNullOrEmpty((string)e.Values["no_poliza"]))
+                //    throw new Exception("Ingrese un número de poliza en el campo.");
+                //if ((DateTime)e.Values["fech_inicio"] == null)
+                //    throw new Exception("Seleccione una fecha de inicio en el calendario.");
+                //if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
+                //    throw new Exception("Seleccione la frecuencia de pago en la lista.");
+                //if ((Guid?)e.Values["uid_prodpol"] == null)
+                //    throw new Exception("Seleccione un producto de la lista.");
+                //if ((Guid?)e.Values["uid_company"] == null)
+                //    throw new Exception("Seleccione una compañia de la lista.");
+
+                var i = DBFunciones.IContext.vpolizas.Find(id);
+                if (i != null)
+                {
+                    i.uid_client = (Guid)e.Values["uid_client"];
+                    i.no_poliza = (string)e.Values["no_poliza"];
+                    i.fech_inicio = (DateTime)e.Values["fech_inicio"];
+                    i.uid_prodpol = (Guid)e.Values["uid_prodpol"];
+                    i.tipo_pago = (string)e.Values["tipo_pago"];
+                    i.uid_company = (Guid)e.Values["uid_company"];
+                    DBFunciones.IContext.SaveChanges();
+                }
+                e.Handled = true;
+            }
+            catch (DbEntityValidationException x)
+            {
+                foreach (var eve in x.EntityValidationErrors)
+                {
+                    Console.WriteLine(@"La entidad de tipo ""{0}"" en el estado ""{1}"" tiene los siguientes errores de validación:",
+                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                        Console.WriteLine(@"La entidad de tipo ""{0}"" en el estado ""{1}"" tiene los siguientes errores de validación:",
+                            ve.PropertyName, ve.ErrorMessage);
+                }
+                throw;
+            }
         }
 
         protected void GridView_RowUpdating(object sender, ASPxDataUpdatingEventArgs e)
@@ -109,7 +191,7 @@ namespace dir_clients
         protected void GridView_CellEditorInitialize(object sender, ASPxGridViewEditorEventArgs e)
         {
             ASPxGridView GridView = sender as ASPxGridView;
-            if (GridView.IsEditing && e.Column.FieldName == "uid_prod_pol")
+            if (GridView.IsEditing && e.Column.FieldName == "uid_prodpol")
             {
                 ASPxComboBox comboboxProdpol = e.Editor as ASPxComboBox;
                 comboboxProdpol.Callback += cmbProdPol_OnCallback;
@@ -133,7 +215,7 @@ namespace dir_clients
             if (string.IsNullOrEmpty(cpy)) return;
 
             cmb.DataSourceID = null;
-            //cmb.DataSource = "dsProdPol"; //WorldCitiesDataProvider.GetCities(Convert.ToInt32(cpy));
+            cmb.DataSource = dsProdPol.ID; //WorldCitiesDataProvider.GetCities(Convert.ToInt32(cpy));
             cmb.DataBindItems();
         }
         void cmbProdPol_OnCallback(object source, CallbackEventArgsBase e)
@@ -142,5 +224,25 @@ namespace dir_clients
         }
         string lastValidCpy = null;
         bool hasValidationErrors = false;
+        protected void cbpage_Callback(object source, CallbackEventArgs e)
+        {
+            string[] _aux = e.Parameter.Split('|');
+            var _switch = _aux[0]?.ToString();
+            try
+            {
+                switch (_switch)
+                {
+                    case "Editar":
+                        if (string.IsNullOrWhiteSpace(_aux[1])) throw new Exception("No se pudo localizar el cliente");
+                        Session["uidmov"] = Guid.Parse(_aux[1]);
+                        break;
+                }
+                e.Result = _switch;
+            }
+            catch (Exception ex)
+            {
+                e.Result = "Error|" + ex.Message;
+            }
+        }
     }
 }

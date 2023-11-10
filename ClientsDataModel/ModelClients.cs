@@ -1,4 +1,4 @@
-using ClientsDataModel.test;
+//using ClientsDataModel.test;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
@@ -27,6 +27,10 @@ namespace ClientsDataModel
 
             modelBuilder.Entity<vpoliza>()
                 .Property(e => e.tipo_pago)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<vpoliza>()
+                .Property(e => e.estatus)
                 .IsUnicode(false);
 
         }

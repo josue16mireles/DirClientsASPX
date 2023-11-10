@@ -2,6 +2,7 @@
 using DevExpress.Web;
 using dir_clients.Classes;
 using System;
+using System.Data;
 using System.Collections.Generic;
 using System.Data.Entity.Validation;
 using System.Linq;
@@ -65,8 +66,6 @@ namespace dir_clients
         {//updating cardview
             var id = (Guid)e.Keys[cvClientEdit.KeyFieldName];
 
-
-
             var i = DBFunciones.IContext.vclients.Find(id);
             if (i != null) 
             {
@@ -109,10 +108,65 @@ namespace dir_clients
                     break;
             }
         }
+        protected void grid_CellEditorInitialize(object sender, ASPxGridViewEditorEventArgs e)
+        {
+            //ASPxGridView gridView = sender as ASPxGridView;
+            //if (e.Column.FieldName == "uid_prodpol")
+            //{
+            //    ASPxComboBox cmbCity = (e.Editor as ASPxComboBox);
+            //    cmbCity.Callback += cmbProdpol_OnCallback;
+            //}
+            if (e.Column.FieldName == "uid_prodpol")
+            {
+                var combo = (ASPxComboBox)e.Editor;
+                combo.Callback += new CallbackEventHandlerBase(combo_Callback);
+
+                var grid = e.Column.Grid;
+                if (!combo.IsCallback)
+                {
+                    var UIDCpy = -1;
+                    if (!grid.IsNewRowEditing)
+                        UIDCpy = (int)grid.GetRowValues(e.VisibleIndex, "company");
+                    FillCitiesComboBox(combo, UIDCpy);
+                }
+            }
+        }
+        private void combo_Callback(object sender, CallbackEventArgsBase e)
+        {
+            var UIDCpy = -1;
+            Int32.TryParse(e.Parameter, out UIDCpy);
+            FillCitiesComboBox(sender as ASPxComboBox, UIDCpy);
+        }
+
+        protected void FillCitiesComboBox(ASPxComboBox combo, int UIDCpy)
+        {
+            combo.DataSourceID = "dsProdPol";
+            dsProdPol.SelectParameters["company"].DefaultValue = UIDCpy.ToString();
+            combo.DataBindItems();
+
+            combo.Items.Insert(0, new ListEditItem("", null)); // Null Item
+        }
+        //protected void FillProdpolCombo(ASPxComboBox cmb, string cpy)
+        //{
+        //    cmb.DataSourceID = null;
+        //    cmb.Items.Clear();
+
+        //    if (!string.IsNullOrEmpty(cpy))
+        //    {
+        //        //cmb.DataSource = WorldCitiesDataProvider.GetCities(Convert.ToInt32(country));
+        //        cmb.DataSource = dsProdPol.ID;
+        //        cmb.DataBindItems();
+        //    }
+        //}
+        //void cmbProdpol_OnCallback(object source, CallbackEventArgsBase e)
+        //{
+        //    FillProdpolCombo(source as ASPxComboBox, e.Parameter);
+        //}
 
         protected void esmdPolizasClient_Selecting(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceSelectEventArgs e)
         {//selecting gridview
             e.QueryableSource = DBFunciones.IContext.vpolizas.Where(a => a.uid_client == SessionMov).AsQueryable();
+            //e.QueryableSource = DBFunciones.IContext.vpolizas.Where(a => a.uid_client == SessionMov && a.estatus == 1).AsQueryable();
             //e.DefaultSorting = "NoPartida";
             e.KeyExpression = "uid_poliza";
         }
@@ -126,7 +180,7 @@ namespace dir_clients
                     throw new Exception("Seleccione una fecha de inicio en el calendario.");
                 if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
                     throw new Exception("Seleccione la frecuencia de pago en la lista.");
-                //if ((Guid?)e.Values["uid_prod_pol"] == null)
+                //if ((Guid?)e.Values["uid_prodpol"] == null)
                 //    throw new Exception("Seleccione un producto de la lista.");
                 //if ((Guid?)e.Values["uid_company"] == null)
                 //    throw new Exception("Seleccione una compañia de la lista.");
@@ -137,7 +191,7 @@ namespace dir_clients
                     uid_client = SessionMov,
                     no_poliza = (string)e.Values["no_poliza"],
                     fech_inicio = (DateTime)e.Values["fech_inicio"],
-                    uid_prod_pol = (Guid)e.Values["uid_prod_pol"],
+                    uid_prodpol = (Guid)e.Values["uid_prodpol"],
                     tipo_pago = (string)e.Values["tipo_pago"],
                     uid_company = (Guid)e.Values["uid_company"],
                 };
@@ -171,7 +225,7 @@ namespace dir_clients
                     throw new Exception("Seleccione una fecha de inicio en el calendario.");
                 if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
                     throw new Exception("Seleccione la frecuencia de pago en la lista.");
-                //if ((Guid?)e.Values["uid_prod_pol"] == null)
+                //if ((Guid?)e.Values["uid_prodpol"] == null)
                 //    throw new Exception("Seleccione un producto de la lista.");
                 //if ((Guid?)e.Values["uid_company"] == null)
                 //    throw new Exception("Seleccione una compañia de la lista.");
@@ -181,9 +235,10 @@ namespace dir_clients
                 {
                     i.no_poliza = (string)e.Values["no_poliza"];
                     i.fech_inicio = (DateTime)e.Values["fech_inicio"];
-                    i.uid_prod_pol = (Guid)e.Values["uid_prod_pol"];
+                    i.uid_prodpol = (Guid)e.Values["uid_prodpol"];
                     i.tipo_pago = (string)e.Values["tipo_pago"];
                     i.uid_company = (Guid)e.Values["uid_company"];
+                    DBFunciones.IContext.SaveChanges();
                 }
                 e.Handled= true;
             }
@@ -245,5 +300,21 @@ namespace dir_clients
             if (e.ButtonType == ColumnCommandButtonType.Update || e.ButtonType == ColumnCommandButtonType.Cancel || e.ButtonType == ColumnCommandButtonType.PreviewChanges)
                 e.Visible = false;
         }
+
+        //protected void dsCpyDataSource_Selecting(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceSelectEventArgs e)
+        //{
+        //    DBFunciones.IsGuid(GridView?.GetRowValues(GridView?.FocusedRowIndex ?? 0, "uid_company")?.ToString(), out Guid UIDCpy);
+
+        //    e.QueryableSource = DBFunciones.IContext.vcompanies.Where(a => a.uid_company == UIDCpy).ToList().AsQueryable();
+        //    e.KeyExpression = "uid_company";
+        //}
+
+        //protected void dsProdPol_Selecting(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceSelectEventArgs e)
+        //{
+        //    DBFunciones.IsGuid(GridView?.GetRowValues(GridView?.FocusedRowIndex ?? 0, "uid_prodpol")?.ToString(), out Guid UIDProdpol);
+
+        //    e.QueryableSource = DBFunciones.IContext.vprodpols.Where(a => a.uid_prodpol == UIDProdpol).ToList().AsQueryable();
+        //    e.KeyExpression = "uid_prodpol";
+        //}
     }
 }

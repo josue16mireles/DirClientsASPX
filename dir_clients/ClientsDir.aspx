@@ -140,7 +140,7 @@
             </Items>
         </EditFormLayoutProperties>
         <Columns>
-            <dx:GridViewCommandColumn ShowSelectCheckbox="True" SelectAllCheckboxMode="AllPages" VisibleIndex="0" Width="45"></dx:GridViewCommandColumn>
+            <%--<dx:GridViewCommandColumn ShowSelectCheckbox="True" SelectAllCheckboxMode="AllPages" VisibleIndex="0" Width="45"></dx:GridViewCommandColumn>--%>
             <dx:GridViewDataTextColumn FieldName="uid_client" ShowInCustomizationForm="True" Visible="False" VisibleIndex="1">
             </dx:GridViewDataTextColumn>
             <dx:GridViewDataHyperLinkColumn FieldName="nombre" Name="Nombre" Caption="Nombre" ShowInCustomizationForm="True" VisibleIndex="2" Width="300px">
@@ -152,9 +152,9 @@
             </dx:GridViewDataTextColumn>
             <dx:GridViewDataTextColumn FieldName="celular" Name="celular" Caption="Celular" ShowInCustomizationForm="True" VisibleIndex="5" Width="100px">
             </dx:GridViewDataTextColumn>
-            <dx:GridViewDataTextColumn FieldName="email" Name="email" Caption="Email" ShowInCustomizationForm="True" VisibleIndex="6" Width="200px">
+            <dx:GridViewDataTextColumn FieldName="email" Name="email" Caption="Email" ShowInCustomizationForm="True" VisibleIndex="6" Width="210px">
             </dx:GridViewDataTextColumn>
-            <dx:GridViewDataTextColumn FieldName="email2" Name="email2" Caption="Email 2" ShowInCustomizationForm="True" VisibleIndex="7" Width="200px">
+            <dx:GridViewDataTextColumn FieldName="email2" Name="email2" Caption="Email 2" ShowInCustomizationForm="True" VisibleIndex="7" Width="210px">
             </dx:GridViewDataTextColumn>
             <dx:GridViewDataTextColumn FieldName="canpol" Name="canpol" Caption="# Plz." ShowInCustomizationForm="True" VisibleIndex="8" Width="100px">
             </dx:GridViewDataTextColumn>

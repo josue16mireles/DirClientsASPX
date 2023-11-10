@@ -68,12 +68,12 @@
 
 .grid-view .status-column.active::after
 {
-    content: "active";
+    content: "activa";
 }
 
 .grid-view .status-column.closed::after
 {
-    content: "closed";
+    content: "vencida";
 }
 
 .grid-view .column-image

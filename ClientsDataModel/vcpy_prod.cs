@@ -1,4 +1,4 @@
-namespace ClientsDataModel.test
+namespace ClientsDataModel
 {
     using System;
     using System.Collections.Generic;
