@@ -10,7 +10,7 @@ namespace dir_clients {
         protected void Page_Load(object sender, EventArgs e) {
             if(!string.IsNullOrEmpty(Page.Header.Title))
                 Page.Header.Title += " - ";
-            Page.Header.Title = Page.Header.Title + "ASP.NET WebForms/MVC Responsive Web Application Template | DevExpress";
+            Page.Header.Title = Page.Header.Title + "Seguros Mireles";
 
             Page.Header.DataBind();
             UpdateUserMenuItemsVisible();

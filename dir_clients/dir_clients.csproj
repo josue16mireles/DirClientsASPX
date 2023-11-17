@@ -188,6 +188,7 @@
     <Content Include="Global.asax" />
     <Content Include="GridView.aspx" />
     <Content Include="GridViewDetailsPage.aspx" />
+    <Content Include="NewCpyProd.ascx" />
     <Content Include="Polizas.aspx" />
     <Content Include="Scheduler.aspx" />
   </ItemGroup>
@@ -266,6 +267,13 @@
     </Compile>
     <Compile Include="GridViewDetailsPage.aspx.designer.cs">
       <DependentUpon>GridViewDetailsPage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="NewCpyProd.ascx.cs">
+      <DependentUpon>NewCpyProd.ascx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="NewCpyProd.ascx.designer.cs">
+      <DependentUpon>NewCpyProd.ascx</DependentUpon>
     </Compile>
     <Compile Include="Polizas.aspx.cs">
       <DependentUpon>Polizas.aspx</DependentUpon>

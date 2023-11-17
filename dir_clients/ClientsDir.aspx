@@ -5,6 +5,33 @@
 <asp:Content ContentPlaceHolderID="Head" runat="server">
     <link rel="stylesheet" type="text/css" href='<%# ResolveUrl("~/Content/GridView.css") %>' />
     <script type="text/javascript" src='<%# ResolveUrl("~/Content/GridView.js") %>'></script>
+    <script type="text/javascript">
+        function edicion() {
+            gridView.GetRowValues(gridView.GetFocusedRowIndex(), 'uid_client', OpenEdit);
+        }
+        function OpenEdit(values) {
+            var _edit = "Editar|" + values;
+            cbpage.PerformCallback(_edit);
+        }
+        function cbpageCallbackComplete(s, e) {
+            var x = e.result.split("|");
+            switch (x[0]) {
+                //case 'Nuevo':
+                //    window.location.href = "Client_Edit.aspx";
+                //    break;
+                case 'Editar':
+                    window.location.href = "Client_Edit.aspx";
+                    break;
+                case 'Error':
+                    alert(x[1]);
+                    break;
+                default:
+                    gridView.PerformCallback();
+                    break;
+            }
+            //loadingpanel.Hide();
+        }
+    </script>
 </asp:Content>
 <asp:Content ContentPlaceHolderID="PageToolbar" runat="server">
     <dx:ASPxMenu runat="server" ID="PageToolbar" ClientInstanceName="pageToolbar"
@@ -51,33 +78,6 @@
 </asp:Content>
 
 <asp:Content ID="Content" ContentPlaceHolderID="PageContent" runat="server">
-    <script type="text/javascript">
-        function edicion() {
-            gridView.GetRowValues(gridView.GetFocusedRowIndex(), 'uid_client', OpenEdit);
-        }
-        function OpenEdit(values) {
-            var _edit = "Editar|" + values;
-            cbpage.PerformCallback(_edit);
-        }
-        function cbpageCallbackComplete(s, e) {
-            var x = e.result.split("|");
-            switch (x[0]) {
-                //case 'Nuevo':
-                //    window.location.href = "Client_Edit.aspx";
-                //    break;
-                case 'Editar':
-                    window.location.href = "Client_Edit.aspx";
-                    break;
-                case 'Error':
-                    alert(x[1]);
-                    break;
-                default:
-                    gridView.PerformCallback();
-                    break;
-            }
-            //loadingpanel.Hide();
-        }
-    </script>
     <dx:ASPxCallback ID="cbpage" ClientInstanceName="cbpage" runat="server" OnCallback="cbpage_Callback">
         <ClientSideEvents CallbackComplete="cbpageCallbackComplete" />
     </dx:ASPxCallback>

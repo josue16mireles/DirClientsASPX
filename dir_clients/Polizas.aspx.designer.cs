@@ -51,6 +51,24 @@ namespace dir_clients
         protected global::DevExpress.Web.ASPxButtonEdit SearchButtonEdit;
 
         /// <summary>
+        /// CPs_PopupControl control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxPopupControl CPs_PopupControl;
+
+        /// <summary>
+        /// CPsCpyProd control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::dir_clients.NewCpyProd CPsCpyProd;
+
+        /// <summary>
         /// cbpage control.
         /// </summary>
         /// <remarks>

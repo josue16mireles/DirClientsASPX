@@ -1,5 +1,6 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Root.master" AutoEventWireup="true" CodeBehind="Polizas.aspx.cs" Inherits="dir_clients.Polizas" %>
 <%@ Register Assembly="DevExpress.Web.v22.2, Version=22.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Data.Linq" TagPrefix="dx" %>
+<%@ Register Src="~/NewCpyProd.ascx" TagName="AvailableCpyProd" TagPrefix="CPs" %>
 
 <asp:Content ContentPlaceHolderID="Head" runat="server">
     <link rel="stylesheet" type="text/css" href='<%# ResolveUrl("~/Content/GridView.css") %>' />
@@ -44,6 +45,9 @@
                     break;
                 case "Export":
                     gridView.ExportTo(ASPxClientGridViewExportFormat.Xlsx);
+                    break;
+                case "NewCpyProd":
+                    ShowWindow(CPs_PopupControl, 0, 'Compañias y Productos');
                     break;
             }
         }
@@ -115,7 +119,7 @@
 
 <asp:Content ContentPlaceHolderID="LeftPanelContent" runat="server">
     
-     <h3 class="leftpanel-section section-caption">Filtros</h3>
+    <h3 class="leftpanel-section section-caption">Filtros</h3>
     <dx:ASPxNavBar runat="server" ID="FiltersNavBar" ClientInstanceName="filtersNavBar"
         AllowSelectItem="true" ShowGroupHeaders="false"
         Width="100%" CssClass="filters-navbar">
@@ -164,6 +168,9 @@
             <dx:MenuItem Name="Export" Text="Export" Alignment="Right" AdaptivePriority="2">
                 <Image Url="Content/Images/export.svg" />
             </dx:MenuItem>
+            <dx:MenuItem Name="NewCpyProd" Text="Compañias" Alignment="Right" AdaptivePriority="2">
+                <Image Url="Content/Images/add.svg" />
+            </dx:MenuItem>
             <dx:MenuItem Name="ToggleFilterPanel" Text="" GroupName="Filter" Alignment="Right" AdaptivePriority="1">
                 <Image Url="Content/Images/search.svg" UrlChecked="Content/Images/search-selected.svg" />
             </dx:MenuItem>
@@ -182,6 +189,22 @@
  
 
 <asp:Content ID="Content" ContentPlaceHolderID="PageContent" runat="server">
+     <dx:ASPxPopupControl ID="CPs_PopupControl" runat="server" AllowDragging="false" ClientInstanceName="CPs_PopupControl" Modal="True" PopupHorizontalAlign="WindowCenter" PopupVerticalAlign="WindowCenter" Width="250px" Height="100px">
+        <Windows>
+            <dx:PopupWindow CloseAction="CloseButton" CloseOnEscape="True" HeaderText="Cpy_Prod" Modal="True"  Name="CPs_PopupControlWindow" ScrollBars="None" >
+                <ContentCollection>
+                   <dx:PopupControlContentControl runat="server">
+                        <CPs:AvailableCpyProd ID="CPsCpyProd" ClientInstanceName="CPsCpyProd" runat="server" />
+                    </dx:PopupControlContentControl>
+                </ContentCollection>
+            </dx:PopupWindow>
+        </Windows>
+        <ContentCollection>
+            <dx:PopupControlContentControl runat="server">
+            </dx:PopupControlContentControl>
+        </ContentCollection>
+    </dx:ASPxPopupControl>
+
     <dx:ASPxCallback ID="cbpage" ClientInstanceName="cbpage" runat="server" OnCallback="cbpage_Callback">
         <ClientSideEvents CallbackComplete="cbpageCallbackComplete" />
     </dx:ASPxCallback>
