@@ -129,10 +129,10 @@ namespace dir_clients
                     throw new Exception("Seleccione una fecha de inicio en el calendario.");
                 if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
                     throw new Exception("Seleccione la frecuencia de pago en la lista.");
-                //if ((Guid?)e.Values["uid_prodpol"] == null)
-                //    throw new Exception("Seleccione un producto de la lista.");
-                //if ((Guid?)e.Values["uid_company"] == null)
-                //    throw new Exception("Seleccione una compañia de la lista.");
+                if ((Guid?)e.Values["uid_prodpol"] == null)
+                    throw new Exception("Seleccione un producto de la lista.");
+                if (IsNullOrEmpty((string)e.Values["uid_company"]))
+                    throw new Exception("Seleccione una compañia de la lista.");
 
                 var i = new vpoliza
                 {
@@ -142,7 +142,7 @@ namespace dir_clients
                     fech_inicio = (DateTime)e.Values["fech_inicio"],
                     uid_prodpol = (Guid)e.Values["uid_prodpol"],
                     tipo_pago = (string)e.Values["tipo_pago"],
-                    uid_company = (Guid)e.Values["uid_company"],
+                    uid_company = (string)e.Values["uid_company"],
                 };
                 DBFunciones.IContext.vpolizas.Add(i);
                 DBFunciones.IContext.SaveChanges();
@@ -174,19 +174,20 @@ namespace dir_clients
                     throw new Exception("Seleccione una fecha de inicio en el calendario.");
                 if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
                     throw new Exception("Seleccione la frecuencia de pago en la lista.");
-                //if ((Guid?)e.Values["uid_prodpol"] == null)
-                //    throw new Exception("Seleccione un producto de la lista.");
-                //if ((Guid?)e.Values["uid_company"] == null)
-                //    throw new Exception("Seleccione una compañia de la lista.");
+                if ((Guid?)e.Values["uid_prodpol"] == null)
+                    throw new Exception("Seleccione un producto de la lista.");
+                if (IsNullOrEmpty((string)e.Values["uid_company"]))
+                    throw new Exception("Seleccione una compañia de la lista.");
 
                 var i = DBFunciones.IContext.vpolizas.Find(id);
                 if (i != null)
                 {
+                    i.uid_client = SessionMov;
                     i.no_poliza = (string)e.Values["no_poliza"];
                     i.fech_inicio = (DateTime)e.Values["fech_inicio"];
                     i.uid_prodpol = (Guid)e.Values["uid_prodpol"];
                     i.tipo_pago = (string)e.Values["tipo_pago"];
-                    i.uid_company = (Guid)e.Values["uid_company"];
+                    i.uid_company = (string)e.Values["uid_company"];
                     DBFunciones.IContext.SaveChanges();
                 }
                 e.Handled = true;

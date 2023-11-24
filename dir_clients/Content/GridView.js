@@ -71,22 +71,22 @@
         searchButtonEdit.SetFocus();
     }
     /**COMBOBOX COMPAÑIA PRODUCTO **/
-    var isResetRequired = false;
-    function onSelectedCpyChanged(s, e) {
-        isResetRequired = true;
-        grid.GetEditor("uid_prodpol").PerformCallback(s.GetValue());
-    }
+    //var isResetRequired = false;
+    //function onSelectedCpyChanged(s, e) {
+    //    isResetRequired = true;
+    //    grid.GetEditor("uid_prodpol").PerformCallback(s.GetValue());
+    //}
 
-    function onProdPolEndCallback(s, e) {
-        if (isResetRequired) {
-            isResetRequired = false;
-            s.SetSelectedIndex(0);
-        }
-    }
+    //function onProdPolEndCallback(s, e) {
+    //    if (isResetRequired) {
+    //        isResetRequired = false;
+    //        s.SetSelectedIndex(0);
+    //    }
+    //}
     /**COMBOBOX COMPAÑIA PRODUCTO **/
     
-    window.onSelectedCpyChanged = onSelectedCpyChanged;
-    window.onProdPolEndCallback = onProdPolEndCallback;
+    //window.onSelectedCpyChanged = onSelectedCpyChanged;
+    //window.onProdPolEndCallback = onProdPolEndCallback;
     window.onGridViewInit = onGridViewInit;
     window.onGridViewSelectionChanged = onGridViewSelectionChanged;
     window.onPageToolbarItemClick = onPageToolbarItemClick;

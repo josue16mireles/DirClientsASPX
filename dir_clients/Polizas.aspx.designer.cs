@@ -60,15 +60,6 @@ namespace dir_clients
         protected global::DevExpress.Web.ASPxPopupControl CPs_PopupControl;
 
         /// <summary>
-        /// CPsCpyProd control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::dir_clients.NewCpyProd CPsCpyProd;
-
-        /// <summary>
         /// cbpage control.
         /// </summary>
         /// <remarks>
@@ -96,15 +87,6 @@ namespace dir_clients
         protected global::System.Web.UI.WebControls.SqlDataSource dsClients;
 
         /// <summary>
-        /// dsCpy control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.SqlDataSource dsCpy;
-
-        /// <summary>
         /// dsProdPol control.
         /// </summary>
         /// <remarks>
@@ -112,6 +94,15 @@ namespace dir_clients
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.SqlDataSource dsProdPol;
+
+        /// <summary>
+        /// dsCpyProd control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.SqlDataSource dsCpyProd;
 
         /// <summary>
         /// GridView control.

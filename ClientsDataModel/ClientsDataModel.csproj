@@ -52,6 +52,8 @@
   <ItemGroup>
     <Compile Include="ModelClients.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="test\Model1.cs" />
+    <Compile Include="test\vpoliza.cs" />
     <Compile Include="vprodpol.cs" />
     <Compile Include="vcompany.cs" />
     <Compile Include="vcpy_prod.cs" />
@@ -62,8 +64,6 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="test\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

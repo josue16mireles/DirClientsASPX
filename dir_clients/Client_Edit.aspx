@@ -109,7 +109,10 @@
             if (cmbUnite !== undefined & cmbUnite !== null) {
                 var x = cmbUnite.GetSelectedItem();
                 if (x !== undefined & x !== null) {
-                    gridView.GetEditor("prodpol").SetValue(x.GetColumnText('prodpol'));
+                    //gridView.GetEditor("company").SetValue(x.GetColumnText('uid_company'));
+                    //gridView.GetEditor("prodpol").SetValue(x.GetColumnText('prodpol'));
+                    gridView.GetEditor("uid_prodpol").SetValue(x.GetColumnText('uid_prodpol'));
+                    //gridView.GetEditor("uid_prodpol").SetValue(x.GetColumnText('prodpol'));
                 }
             }
         }
@@ -297,8 +300,7 @@
                             <PanelCollection>
                                 <dx:PanelContent runat="server">
                                     <dx:EntityServerModeDataSource ID="esmdPolizasClient" runat="server" EnableInsert="true" EnableUpdate="true" OnSelecting="esmdPolizasClient_Selecting" OnInserting="esmdPolizasClient_Inserting"  OnUpdating="esmdPolizasClient_Updating"/>
-                                    <%--<asp:SqlDataSource ID="dsCpy" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="select uid_company, company from dbo.vcompany order by company" />--%>
-                                    <%--<dx:EntityServerModeDataSource ID="dsCpyProd" runat="server" OnSelecting="dsCpyProd_Selecting" />--%>
+                                    <asp:SqlDataSource ID="dsProdPol" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="select uid_prodpol, prodpol from dbo.vprodpol order by prodpol" />
                                     <asp:SqlDataSource ID="dsCpyProd" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="CpyProdComboSP" SelectCommandType="StoredProcedure">
                                         <SelectParameters>
                                             <asp:SessionParameter Name="Cpyname" SessionField="Cpyname" Type="String" />
@@ -356,7 +358,7 @@
                                             </dx:GridViewDataComboBoxColumn>
                                             <dx:GridViewDataDateColumn FieldName="nxt_pago" Caption="Sig. Pago" ReadOnly="true" ShowInCustomizationForm="true" Visible="true" VisibleIndex="6" Width="270px">
                                             </dx:GridViewDataDateColumn>
-                                            <dx:GridViewDataComboBoxColumn Name="company" Caption="Compañia" FieldName="company" ShowInCustomizationForm="true" Visible="true" VisibleIndex="7" Width="270px">
+                                            <dx:GridViewDataComboBoxColumn Name="company" Caption="Compañia" FieldName="uid_company" ShowInCustomizationForm="true" Visible="true" VisibleIndex="7" Width="270px">
                                                 <PropertiesComboBox ClientInstanceName="cbCpyProd" TextField="company" ValueField="uid_company" ValueType="System.String" EnableCallbackMode="true" CallbackPageSize="10" OnItemRequestedByValue="cbCpyProd_ItemRequestedByValue"
                                                     OnItemsRequestedByFilterCondition="cbCpyProd_ItemsRequestedByFilterCondition" LoadDropDownOnDemand="false" TextFormatString="{0}" FilterMinLength="0" DropDownStyle="DropDown" EnableClientSideAPI="true">
                                                     <Columns>
@@ -364,7 +366,7 @@
                                                         </dx:ListBoxColumn>
                                                         <dx:ListBoxColumn FieldName="company" Caption="Compañia" Visible="true">
                                                         </dx:ListBoxColumn>
-                                                        <dx:ListBoxColumn FieldName="uid_prodpol" Visible="false">
+                                                        <dx:ListBoxColumn FieldName="uid_prodpol" Width="0px">
                                                         </dx:ListBoxColumn>
                                                         <dx:ListBoxColumn FieldName="prodpol" Caption="Producto" Visible="true">
                                                         </dx:ListBoxColumn>
@@ -372,15 +374,10 @@
                                                     <ClientSideEvents SelectedIndexChanged="function(s, e) {OnUniteChanged(s);}" />
                                                 </PropertiesComboBox>                                                
                                             </dx:GridViewDataComboBoxColumn>
-                                            <dx:GridViewDataTextColumn FieldName="uid_prodpol" ShowInCustomizationForm="true" Visible="false" VisibleIndex="8" Width="270px">
-                                                <PropertiesTextEdit EncodeHtml="False">
-		                                        </PropertiesTextEdit>
-                                            </dx:GridViewDataTextColumn>
-                                            <dx:GridViewDataTextColumn FieldName="prodpol" Caption="Producto" ShowInCustomizationForm="true" Visible="true" VisibleIndex="9" Width="270px">
-                                                <PropertiesTextEdit EncodeHtml="False">
-		                                        </PropertiesTextEdit>
-                                            </dx:GridViewDataTextColumn>
-
+                                            <dx:GridViewDataComboBoxColumn Caption="Producto" FieldName="uid_prodpol" VisibleIndex="8" ReadOnly="true" ShowInCustomizationForm="true" Width="300">
+                                                <PropertiesComboBox DataSourceID="dsProdPol" ValueField="uid_prodpol" TextField="prodpol">
+                                                </PropertiesComboBox>
+                                            </dx:GridViewDataComboBoxColumn>
                                             <dx:GridViewDataTextColumn Caption="Estatus" FieldName="estatus" VisibleIndex="10" Visible="false" CellStyle-HorizontalAlign="Center" Width="90" >
                                             </dx:GridViewDataTextColumn>
                                         </Columns>

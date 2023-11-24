@@ -105,6 +105,15 @@ namespace dir_clients
         protected global::DevExpress.Data.Linq.EntityServerModeDataSource esmdPolizasClient;
 
         /// <summary>
+        /// dsProdPol control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.SqlDataSource dsProdPol;
+
+        /// <summary>
         /// dsCpyProd control.
         /// </summary>
         /// <remarks>

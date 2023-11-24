@@ -10,11 +10,36 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using static System.String;
 using System.Data.Entity.Validation;
+using System.Net.Sockets;
+using DevExpress.XtraExport.Helpers;
+using System.Diagnostics;
 
 namespace dir_clients
 {
     public partial class Polizas : System.Web.UI.Page
     {
+        public int FiLoad { get; set; }
+        private vpoliza _Getform;
+        public vpoliza Getform
+        {
+            set => Session["_vpoliza"] = value;
+            get
+            {
+                if (Session["_vpoliza"] == null) GridView.DataBind();
+                _Getform = (vpoliza)Session["_vpoliza"];
+                return _Getform;
+            }
+        }
+        public Guid SessionMov
+        {
+            get
+            {
+                DBFunciones.IsGuid(Getform.uid_client.ToString(), out var x);
+                Session["UIDMOVS"] = x;
+                return x;
+            }
+
+        }
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!Page.IsPostBack)
@@ -35,16 +60,16 @@ namespace dir_clients
         {
             try
             {
-                //if (IsNullOrEmpty((string)e.Values["no_poliza"]))
-                //    throw new Exception("Ingrese un número de poliza en el campo.");
-                //if ((DateTime)e.Values["fech_inicio"] == null)
-                //    throw new Exception("Seleccione una fecha de inicio en el calendario.");
-                //if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
-                //    throw new Exception("Seleccione la frecuencia de pago en la lista.");
-                //if ((Guid?)e.Values["uid_prodpol"] == null)
-                //    throw new Exception("Seleccione un producto de la lista.");
-                //if ((Guid?)e.Values["uid_company"] == null)
-                //    throw new Exception("Seleccione una compañia de la lista.");
+                if (IsNullOrEmpty((string)e.Values["no_poliza"]))
+                    throw new Exception("Ingrese un número de poliza en el campo.");
+                if ((DateTime)e.Values["fech_inicio"] == null)
+                    throw new Exception("Seleccione una fecha de inicio en el calendario.");
+                if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
+                    throw new Exception("Seleccione la frecuencia de pago en la lista.");
+                if ((Guid?)e.Values["uid_prodpol"] == null)
+                    throw new Exception("Seleccione un producto de la lista.");
+                if (IsNullOrEmpty((string)e.Values["uid_company"]))
+                    throw new Exception("Seleccione una compañia de la lista.");
 
                 var i = new vpoliza
                 {
@@ -54,7 +79,7 @@ namespace dir_clients
                     fech_inicio = (DateTime)e.Values["fech_inicio"],
                     uid_prodpol = (Guid)e.Values["uid_prodpol"],
                     tipo_pago = (string)e.Values["tipo_pago"],
-                    uid_company = (Guid)e.Values["uid_company"],
+                    uid_company = (string)e.Values["uid_company"],
                 };
                 DBFunciones.IContext.vpolizas.Add(i);
                 DBFunciones.IContext.SaveChanges();
@@ -81,16 +106,16 @@ namespace dir_clients
             {
                 var id = (Guid)e.Keys[GridView.KeyFieldName];
 
-                //if (IsNullOrEmpty((string)e.Values["no_poliza"]))
-                //    throw new Exception("Ingrese un número de poliza en el campo.");
-                //if ((DateTime)e.Values["fech_inicio"] == null)
-                //    throw new Exception("Seleccione una fecha de inicio en el calendario.");
-                //if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
-                //    throw new Exception("Seleccione la frecuencia de pago en la lista.");
-                //if ((Guid?)e.Values["uid_prodpol"] == null)
-                //    throw new Exception("Seleccione un producto de la lista.");
-                //if ((Guid?)e.Values["uid_company"] == null)
-                //    throw new Exception("Seleccione una compañia de la lista.");
+                if (IsNullOrEmpty((string)e.Values["no_poliza"]))
+                    throw new Exception("Ingrese un número de poliza en el campo.");
+                if ((DateTime)e.Values["fech_inicio"] == null)
+                    throw new Exception("Seleccione una fecha de inicio en el calendario.");
+                if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
+                    throw new Exception("Seleccione la frecuencia de pago en la lista.");
+                if ((Guid?)e.Values["uid_prodpol"] == null)
+                    throw new Exception("Seleccione un producto de la lista.");
+                if (IsNullOrEmpty((string)e.Values["uid_company"]))
+                    throw new Exception("Seleccione una compañia de la lista.");
 
                 var i = DBFunciones.IContext.vpolizas.Find(id);
                 if (i != null)
@@ -100,7 +125,7 @@ namespace dir_clients
                     i.fech_inicio = (DateTime)e.Values["fech_inicio"];
                     i.uid_prodpol = (Guid)e.Values["uid_prodpol"];
                     i.tipo_pago = (string)e.Values["tipo_pago"];
-                    i.uid_company = (Guid)e.Values["uid_company"];
+                    i.uid_company = (string)e.Values["uid_company"];
                     DBFunciones.IContext.SaveChanges();
                 }
                 e.Handled = true;
@@ -131,12 +156,6 @@ namespace dir_clients
             if (x != null && x.DataSourceID == dsPolizas.ID)
                 x.CancelEdit();
         }
-        protected void GridView_RowDeleting(object sender, ASPxDataDeletingEventArgs e)
-        {
-            var x = (ASPxGridView)sender;
-            if (x != null && x.DataSourceID == dsPolizas.ID)
-                x.CancelEdit();
-        }
         protected void GridView_CustomErrorText(object sender, ASPxGridViewCustomErrorTextEventArgs e)
         {
             switch (e.Exception)
@@ -157,73 +176,7 @@ namespace dir_clients
             }
         }
 
-        protected void prodpol_ItemRequestedByValue(object source, ListEditItemRequestedByValueEventArgs e)
-        {
-            if (string.IsNullOrEmpty(e.Value?.ToString())) return;
-            var comboBox = (ASPxComboBox)source;
-            if (comboBox == null) return;
 
-            DBFunciones.IsGuid(e.Value?.ToString(), out var x);
-            var cntxt = new ModelClients();
-            var i = from vcompany in cntxt.vcompanies
-                    where vcompany.uid_company == x
-                    select vcompany;
-            comboBox.DataSource = i.ToList();
-            comboBox.DataBind();
-        }
-
-        protected void prodpol_ItemsRequestedByFilterCondition(object source, ListEditItemsRequestedByFilterConditionEventArgs e)
-        {
-            if (string.IsNullOrEmpty(e.Filter)) return;
-            var comboBox = (ASPxComboBox)source;
-            if (comboBox == null) return;
-            var skip = e.BeginIndex;
-            var take = e.EndIndex - e.BeginIndex + 1;
-            var cntxt = new ModelClients();
-            var i = (from vcompany in cntxt.vcompanies
-                     where vcompany.company .Contains(e.Filter)
-                     orderby vcompany.company
-                     select vcompany).Skip(skip).Take(take).ToList();
-            comboBox.DataSource = i;
-            comboBox.DataBind();
-        }
-
-        protected void GridView_CellEditorInitialize(object sender, ASPxGridViewEditorEventArgs e)
-        {
-            ASPxGridView GridView = sender as ASPxGridView;
-            if (GridView.IsEditing && e.Column.FieldName == "uid_prodpol")
-            {
-                ASPxComboBox comboboxProdpol = e.Editor as ASPxComboBox;
-                comboboxProdpol.Callback += cmbProdPol_OnCallback;
-                var currentCpy = GridView.GetRowValues(e.VisibleIndex, "uid_company");
-                if (hasValidationErrors)
-                    FillProdpolCombo(comboboxProdpol, lastValidCpy);
-                else
-                    if (e.KeyValue != DBNull.Value && e.KeyValue != null && currentCpy != null && currentCpy != DBNull.Value)
-                {
-                    FillProdpolCombo(comboboxProdpol, currentCpy.ToString());
-                }
-                else
-                {
-                    comboboxProdpol.DataSourceID = null;//"dsCpy"; // dsProdPol
-                    comboboxProdpol.Items.Clear();
-                }
-            }
-        }
-        protected void FillProdpolCombo(ASPxComboBox cmb, string cpy)
-        {
-            if (string.IsNullOrEmpty(cpy)) return;
-
-            cmb.DataSourceID = null;
-            cmb.DataSource = dsProdPol.ID; //WorldCitiesDataProvider.GetCities(Convert.ToInt32(cpy));
-            cmb.DataBindItems();
-        }
-        void cmbProdPol_OnCallback(object source, CallbackEventArgsBase e)
-        {
-            FillProdpolCombo(source as ASPxComboBox, e.Parameter);
-        }
-        string lastValidCpy = null;
-        bool hasValidationErrors = false;
         protected void cbpage_Callback(object source, CallbackEventArgs e)
         {
             string[] _aux = e.Parameter.Split('|');
@@ -244,5 +197,49 @@ namespace dir_clients
                 e.Result = "Error|" + ex.Message;
             }
         }
+        protected void cbCpyProd_ItemRequestedByValue(object source, ListEditItemRequestedByValueEventArgs e)
+        {
+            if (GridView.VisibleRowCount <= 0 || FiLoad == 1 || IsNullOrEmpty(e.Value?.ToString())) return;
+            var comboBox = (ASPxComboBox)source;
+            if (comboBox == null) return;
+            //Session["Cpyname"] = SessionMov.ToString();
+            Session["Cpyname"] = GridView.FindVisibleIndexByKeyValue("uid_client");
+            Session["startIndex"] = 1;
+            Session["endIndex"] = 200 + 1;
+            comboBox.DataSource = dsCpyProd;
+            comboBox.DataBind();
+            FiLoad = 1;
+        }
+
+        protected void cbCpyProd_ItemsRequestedByFilterCondition(object source, ListEditItemsRequestedByFilterConditionEventArgs e)
+        {
+            if (e.Filter == Empty)
+                return;
+            var filter = $"%{e.Filter}%";
+            var comboBox = (ASPxComboBox)source;
+            Session["Cpyname"] = filter;
+            Session["startIndex"] = e.BeginIndex + 1;
+            Session["endIndex"] = e.EndIndex + 1;
+            comboBox.DataSource = dsCpyProd;
+            comboBox.DataBind();
+        }
+        //protected void Page_Init(object sender, EventArgs e)
+        //{
+        //    if (Session["baseURL"] == null)
+        //        Session["baseURL"] = "Client_Edit.aspx";
+        //}
+
+        //protected void linkclient_Init(object sender, EventArgs e)
+        //{
+        //    ASPxHyperLink link = (ASPxHyperLink)sender;
+
+        //    GridViewDataItemTemplateContainer templateContainer = (GridViewDataItemTemplateContainer)link.NamingContainer;
+        //    int rowVisibleIndex = templateContainer.VisibleIndex;
+        //    string ean13 = templateContainer.Grid.GetRowValues(rowVisibleIndex, "nombre").ToString();
+        //    //string contentUrl = string.Format("{0}?uid_client={1}", Session["baseURL"], ean13);
+        //    link.NavigateUrl = "javascript:edicion();";
+        //    link.Text = string.Format("{0}", ean13);
+        //    //link.ClientSideEvents.Click = string.Format("function(s, e) {{ OnMoreInfoClick('{0}'); }}", contentUrl);
+        //}
     }
 }

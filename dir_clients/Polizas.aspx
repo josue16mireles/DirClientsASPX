@@ -1,6 +1,6 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Root.master" AutoEventWireup="true" CodeBehind="Polizas.aspx.cs" Inherits="dir_clients.Polizas" %>
 <%@ Register Assembly="DevExpress.Web.v22.2, Version=22.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Namespace="DevExpress.Data.Linq" TagPrefix="dx" %>
-<%@ Register Src="~/NewCpyProd.ascx" TagName="AvailableCpyProd" TagPrefix="CPs" %>
+<%--<%@ Register Src="~/NewCpyProd.ascx" TagName="AvailableCpyProd" TagPrefix="CPs" %>--%>
 
 <asp:Content ContentPlaceHolderID="Head" runat="server">
     <link rel="stylesheet" type="text/css" href='<%# ResolveUrl("~/Content/GridView.css") %>' />
@@ -24,7 +24,7 @@
         }
         function updateToolbarButtonsState() {
             var enabled = gridView.GetSelectedRowCount() > 0;
-            pageToolbar.GetItemByName("Delete").SetEnabled(enabled);
+            //pageToolbar.GetItemByName("Delete").SetEnabled(enabled);
             pageToolbar.GetItemByName("Export").SetEnabled(enabled);
 
             pageToolbar.GetItemByName("Edit").SetEnabled(gridView.GetFocusedRowIndex() !== -1);
@@ -40,22 +40,22 @@
                 case "Edit":
                     gridView.StartEditRow(gridView.GetFocusedRowIndex());
                     break;
-                case "Delete":
-                    deleteSelectedRecords();
-                    break;
+                //case "Delete":
+                //    deleteSelectedRecords();
+                //    break;
                 case "Export":
                     gridView.ExportTo(ASPxClientGridViewExportFormat.Xlsx);
                     break;
                 case "NewCpyProd":
-                    ShowWindow(CPs_PopupControl, 0, 'Compañias y Productos');
+                    //ShowWindow(CPs_PopupControl, 0, 'Compañias y Productos');
                     break;
             }
         }
-        function deleteSelectedRecords() {
-            if (confirm('Confirm Delete?')) {
-                gridView.PerformCallback('delete');
-            }
-        }
+        //function deleteSelectedRecords() {
+        //    if (confirm('Confirm Delete?')) {
+        //        gridView.PerformCallback('delete');
+        //    }
+        //}
         function onFiltersNavBarItemClick(s, e) {
             var filters = {
                 All: "",
@@ -75,21 +75,16 @@
             adjustPageControls();
             searchButtonEdit.SetFocus();
         }
-        /**COMBOBOX COMPAÑIA PRODUCTO **/
-        var isResetRequired = false;
-        function onSelectedCpyChanged(s, e) {
-            isResetRequired = true;
-            gridView.GetEditor("uid_prodpol").PerformCallback(s.GetValue());
-        }
-
-        function onProdPolEndCallback(s, e) {
-            if (isResetRequired) {
-                isResetRequired = false;
-                s.SetSelectedIndex(0);
-            }
-        }
-        /**COMBOBOX COMPAÑIA PRODUCTO **/
-
+        //function OnComboBoxInit(s, e) {
+        //    // Personalizar el contenido de la celda con un enlace (hyperlink)
+        //    var comboBox = s;
+        //    comboBox.GetGridView().GetValuesOnCustomCallback = function (args) {
+        //        var index = args.visibleIndex;
+        //        var clienteGuid = comboBox.GetRowKey(index);
+        //        var clienteTexto = comboBox.GetRow(index).cells["uid_client"].innerText;
+        //        return clienteTexto + '<a href="Client_Edit.aspx?clienteGuid=' + clienteGuid + '">Enlace</a>';
+        //    };
+        //}
         function edicion() {
             gridView.GetRowValues(gridView.GetFocusedRowIndex(), 'uid_client', OpenEdit);
         }
@@ -114,6 +109,22 @@
                     break;
             }
         }
+        function OnUniteChanged(cmbUnite) {
+            if (cmbUnite !== undefined & cmbUnite !== null) {
+                var x = cmbUnite.GetSelectedItem();
+                if (x !== undefined & x !== null) {
+                    //gridView.GetEditor("company").SetValue(x.GetColumnText('uid_company'));
+                    //gridView.GetEditor("prodpol").SetValue(x.GetColumnText('prodpol'));
+                    gridView.GetEditor("uid_prodpol").SetValue(x.GetColumnText('uid_prodpol'));
+                    //gridView.GetEditor("uid_prodpol").SetValue(x.GetColumnText('prodpol'));
+                }
+            }
+        }
+        //function OnMoreInfoClick(contentUrl) {
+        //    clientPopupControl.SetContentUrl(contentUrl);
+        //    clientPopupControl.Show();
+        //}
+
     </script>
 </asp:Content>
 
@@ -162,9 +173,9 @@
             <dx:MenuItem Name="Edit" Text="Edit" Alignment="Right" AdaptivePriority="2">
                 <Image Url="Content/Images/edit.svg" />
             </dx:MenuItem>
-            <dx:MenuItem Name="Delete" Text="Delete" Alignment="Right" AdaptivePriority="2">
+            <%--<dx:MenuItem Name="Delete" Text="Delete" Alignment="Right" AdaptivePriority="2">
                 <Image Url="Content/Images/delete.svg" />
-            </dx:MenuItem>
+            </dx:MenuItem>--%>
             <dx:MenuItem Name="Export" Text="Export" Alignment="Right" AdaptivePriority="2">
                 <Image Url="Content/Images/export.svg" />
             </dx:MenuItem>
@@ -194,7 +205,7 @@
             <dx:PopupWindow CloseAction="CloseButton" CloseOnEscape="True" HeaderText="Cpy_Prod" Modal="True"  Name="CPs_PopupControlWindow" ScrollBars="None" >
                 <ContentCollection>
                    <dx:PopupControlContentControl runat="server">
-                        <CPs:AvailableCpyProd ID="CPsCpyProd" ClientInstanceName="CPsCpyProd" runat="server" />
+                        <%--<CPs:AvailableCpyProd ID="CPsCpyProd" ClientInstanceName="CPsCpyProd" runat="server" />--%>
                     </dx:PopupControlContentControl>
                 </ContentCollection>
             </dx:PopupWindow>
@@ -208,22 +219,32 @@
     <dx:ASPxCallback ID="cbpage" ClientInstanceName="cbpage" runat="server" OnCallback="cbpage_Callback">
         <ClientSideEvents CallbackComplete="cbpageCallbackComplete" />
     </dx:ASPxCallback>
-    <dx:EntityServerModeDataSource ID="dsPolizas" runat="server" EnableInsert="true" EnableUpdate="true" EnableDelete="True"  OnSelecting="dsPolizas_Selecting" OnInserting="dsPolizas_Inserting" OnUpdating="dsPolizas_Updating" ContextTypeName="ClientsDataModel" TableName="vpoliza" />
+    <dx:EntityServerModeDataSource ID="dsPolizas" runat="server" EnableInsert="true" EnableUpdate="true" OnSelecting="dsPolizas_Selecting" OnInserting="dsPolizas_Inserting" OnUpdating="dsPolizas_Updating" ContextTypeName="ClientsDataModel" TableName="vpoliza" />
     <asp:SqlDataSource ID="dsClients" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="SELECT uid_client, nombre FROM vclients order by nombre" />
-    <asp:SqlDataSource ID="dsCpy" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="select uid_company, company from dbo.vcompany order by company" />
     <asp:SqlDataSource ID="dsProdPol" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="select uid_prodpol, prodpol from dbo.vprodpol order by prodpol" />
+    <asp:SqlDataSource ID="dsCpyProd" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="CpyProdComboSP" SelectCommandType="StoredProcedure">
+        <SelectParameters>
+            <asp:SessionParameter Name="Cpyname" SessionField="Cpyname" Type="String" />
+            <asp:SessionParameter DefaultValue="1" Name="startIndex" SessionField="startIndex" Type="Int32" />
+            <asp:SessionParameter DefaultValue="200" Name="endIndex" SessionField="endIndex" Type="Int32" />
+            <asp:Parameter DefaultValue="dbo.vpolizas" Name="TabSch" Type="String" />
+        </SelectParameters>
+    </asp:SqlDataSource>
     
     <dx:ASPxGridView runat="server" ID="GridView" ClientInstanceName="gridView" KeyFieldName="uid_poliza" KeyboardSupport="True" EnablePagingGestures="False" Width="100%"
         DataSourceID="dsPolizas"
-        OnRowUpdating="GridView_RowUpdating" OnRowInserting="GridView_RowInserting" OnRowDeleting="GridView_RowDeleting" AutoGenerateColumns="False"
-        OnCustomErrorText="GridView_CustomErrorText" 
-        OnCellEditorInitialize="GridView_CellEditorInitialize">
+        OnRowUpdating="GridView_RowUpdating" OnRowInserting="GridView_RowInserting" AutoGenerateColumns="False"
+        OnCustomErrorText="GridView_CustomErrorText">
         
-        <ClientSideEvents Init="onGridViewInit" SelectionChanged="onGridViewSelectionChanged" RowDblClick="edicion" /> 
-
+        <%--<ClientSideEvents Init="onGridViewInit" SelectionChanged="onGridViewSelectionChanged" RowDblClick="edicion" /> --%>
+        <ClientSideEvents Init="onGridViewInit" SelectionChanged="onGridViewSelectionChanged" />
+        <SettingsDataSecurity AllowReadUnlistedFieldsFromClientApi="True" />
         <SettingsResizing ColumnResizeMode="Control" />
         <SettingsBehavior AllowFocusedRow="true" AllowSelectByRowClick="true" AllowEllipsisInText="true" AllowDragDrop="false"/>
-        <SettingsEditing Mode="PopupEditForm" EditFormColumnCount="2" />
+        <%--<SettingsEditing Mode="PopupEditForm" EditFormColumnCount="2" />--%>
+        <SettingsEditing Mode="Batch" UseFormLayout="false" NewItemRowPosition="Bottom">
+            <BatchEditSettings EditMode="Row"  />
+        </SettingsEditing> 
         <SettingsSearchPanel CustomEditorID="SearchButtonEdit" />
         <Settings VerticalScrollBarMode="auto" VerticalScrollableHeight="730" HorizontalScrollBarMode="Auto" ShowHeaderFilterButton="true"/>
         <SettingsPager PageSize="200" EnableAdaptivity="true">
@@ -257,7 +278,9 @@
                         </dx:GridViewColumnLayoutItem>
                         <dx:GridViewColumnLayoutItem Caption="Compañia" ColSpan="1" ColumnName="company">
                         </dx:GridViewColumnLayoutItem>
-                        <dx:GridViewColumnLayoutItem Caption="Producto" ColSpan="1" ColumnName="prodpol">
+                        <dx:GridViewColumnLayoutItem Caption="Producto" ColSpan="1" ColumnName="uid_prodpol">
+                        </dx:GridViewColumnLayoutItem>
+                        <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="uid_client" Visible="true" Width="0" Border-BorderStyle="None" ShowCaption="False">
                         </dx:GridViewColumnLayoutItem>
                         <dx:EditModeCommandLayoutItem ColSpan="2" HorizontalAlign="Right">
                         </dx:EditModeCommandLayoutItem>
@@ -266,11 +289,16 @@
             </Items>
         </EditFormLayoutProperties>
         <Columns>
-            
+            <dx:GridViewCommandColumn ShowSelectCheckbox="True" SelectAllCheckboxMode="AllPages" VisibleIndex="13" FixedStyle="Left" Width="52"></dx:GridViewCommandColumn>
             <dx:GridViewDataTextColumn FieldName="uid_poliza" ReadOnly="True" Visible="False" VisibleIndex="0">
             </dx:GridViewDataTextColumn>
             <dx:GridViewDataComboBoxColumn Caption="Nombre" FieldName="nombre" ShowInCustomizationForm="True" VisibleIndex="2" Width="350px">
-                <PropertiesComboBox ValueField="uid_client" TextField="nombre" DataSourceID="dsClients"></PropertiesComboBox>
+                <PropertiesComboBox ValueField="uid_client" TextField="nombre" DataSourceID="dsClients">
+                    <%--<ClientSideEvents Init="function(s, e) { OnComboBoxInit(s, e); }" />--%>
+                </PropertiesComboBox>
+                <%--<DataItemTemplate>
+                    <dx:ASPxHyperLink id="linkclient" runat="server" OnInit="linkclient_Init" ></dx:ASPxHyperLink>
+                </DataItemTemplate>--%>
             </dx:GridViewDataComboBoxColumn>
             <dx:GridViewDataTextColumn FieldName="uid_client" ReadOnly="True" Visible="False" VisibleIndex="1">
             </dx:GridViewDataTextColumn>
@@ -293,23 +321,31 @@
             </dx:GridViewDataComboBoxColumn>
             <dx:GridViewDataDateColumn Caption="Sig. Pago" FieldName="nxt_pago" VisibleIndex="7" ShowInCustomizationForm="true" Width="120">
             </dx:GridViewDataDateColumn>
-            <%--<dx:GridViewDataTextColumn FieldName="uid_prodpol" ReadOnly="True" Visible="False" VisibleIndex="8">
-            </dx:GridViewDataTextColumn>--%>
-            <dx:GridViewDataComboBoxColumn Caption="Producto" FieldName="uid_prodpol" VisibleIndex="12" ShowInCustomizationForm="true" Width="300">
-                <PropertiesComboBox EnableSynchronization="False" IncrementalFilteringMode="StartsWith" DataSourceID="dsProdPol" ValueField="uid_prodpol" TextField="prodpol" ValueType="System.Guid" DataSecurityMode="Strict" >
-                    <ClientSideEvents EndCallback="onProdPolEndCallback" />
+            <dx:GridViewDataComboBoxColumn Name="company" Caption="Compañia" FieldName="uid_company" VisibleIndex="8" ShowInCustomizationForm="true" Width="200">
+                <PropertiesComboBox ClientInstanceName="cbCpyProd" TextField="company" ValueField="uid_company" ValueType="System.String" EnableCallbackMode="true" CallbackPageSize="10" OnItemRequestedByValue="cbCpyProd_ItemRequestedByValue"
+                    OnItemsRequestedByFilterCondition="cbCpyProd_ItemsRequestedByFilterCondition" LoadDropDownOnDemand="false" TextFormatString="{0}" FilterMinLength="0" DropDownStyle="DropDown" EnableClientSideAPI="true">
+                    <Columns>
+                        <dx:ListBoxColumn FieldName="uid_company" Visible="false">
+                        </dx:ListBoxColumn>
+                        <dx:ListBoxColumn FieldName="company" Caption="Compañia" Visible="true">
+                        </dx:ListBoxColumn>
+                        <dx:ListBoxColumn FieldName="uid_prodpol" Width="0px">
+                        </dx:ListBoxColumn>
+                        <dx:ListBoxColumn FieldName="prodpol" Caption="Producto" Visible="true">
+                        </dx:ListBoxColumn>
+                    </Columns>
+                    <ClientSideEvents SelectedIndexChanged="function(s, e) {OnUniteChanged(s);}" />
                 </PropertiesComboBox>
             </dx:GridViewDataComboBoxColumn>
-            <%--<dx:GridViewDataTextColumn FieldName="tipo_pago" ReadOnly="True" Visible="False" VisibleIndex="10">
+            <%--<dx:GridViewDataTextColumn FieldName="uid_prodpol" ReadOnly="True" Visible="False" VisibleIndex="9">
             </dx:GridViewDataTextColumn>--%>
-            <%--<dx:GridViewDataTextColumn FieldName="uid_company" ReadOnly="True" Visible="False" VisibleIndex="11">
+            <%--<dx:GridViewDataTextColumn Caption="Producto" FieldName="prodpol" Visible="true" VisibleIndex="10" ShowInCustomizationForm="true" Width="300">
             </dx:GridViewDataTextColumn>--%>
-            <dx:GridViewDataComboBoxColumn Caption="Compañia" FieldName="uid_company" VisibleIndex="9" ShowInCustomizationForm="true" Width="200">
-                <PropertiesComboBox TextField="company" ValueField="uid_company" ValueType="System.Guid" EnableSynchronization="false" DataSecurityMode="Strict" IncrementalFilteringMode="StartsWith" DataSourceID="dsCpy">
-                    <ClientSideEvents SelectedIndexChanged="onSelectedCpyChanged" />
+            <dx:GridViewDataComboBoxColumn Caption="Producto" FieldName="uid_prodpol" VisibleIndex="12" Visible="true" ReadOnly="true" ShowInCustomizationForm="true" Width="300">
+                <PropertiesComboBox DataSourceID="dsProdPol" ValueField="uid_prodpol" TextField="prodpol" >
                 </PropertiesComboBox>
             </dx:GridViewDataComboBoxColumn>
-            <dx:GridViewDataTextColumn Caption="Estatus" FieldName="estatus" CellStyle-HorizontalAlign="Center" VisibleIndex="13" Width="90" >
+            <dx:GridViewDataTextColumn Caption="Estatus" FieldName="estatus" CellStyle-HorizontalAlign="Center" VisibleIndex="11" Width="90" >
                 <%--<DataItemTemplate>
                     <span class="status-column" <%# Eval("estatus")  %>" > </span>
                 </DataItemTemplate>--%>

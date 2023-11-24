@@ -1,42 +1,36 @@
-//using ClientsDataModel.test;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Linq;
 
-namespace ClientsDataModel
+namespace ClientsDataModel.test
 {
-    public partial class ModelClients : DbContext
+    public partial class Model1 : DbContext
     {
-        public ModelClients()
-            : base("name=ModelClients")
+        public Model1()
+            : base("name=Model115")
         {
         }
 
-        public virtual DbSet<vclient> vclients { get; set; }
         public virtual DbSet<vpoliza> vpolizas { get; set; }
-        public virtual DbSet<vcpy_prod> vcpy_prod { get; set; }
-        public virtual DbSet<vcompany> vcompanies { get; set; }
-        public virtual DbSet<vprodpol> vprodpols { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<vpoliza>()
-                 .Property(e => e.FrecuenciaDePago)
-                 .IsUnicode(false);
+                .Property(e => e.FrecuenciaDePago)
+                .IsUnicode(false);
 
             modelBuilder.Entity<vpoliza>()
                 .Property(e => e.tipo_pago)
                 .IsUnicode(false);
 
             modelBuilder.Entity<vpoliza>()
-            .Property(e => e.uid_company)
-            .IsUnicode(false);
+                .Property(e => e.uid_company)
+                .IsUnicode(false);
 
             modelBuilder.Entity<vpoliza>()
                 .Property(e => e.estatus)
                 .IsUnicode(false);
-
         }
     }
 }
