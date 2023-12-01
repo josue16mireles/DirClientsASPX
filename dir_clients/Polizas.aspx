@@ -13,7 +13,6 @@
         }
         function AdjustSize() {
             var height = Math.max(0, document.documentElement.clientHeight);
-            //grid.SetHeight(height);
             gridView.SetHeight(height);
         }
         function onGridViewSelectionChanged(s, e) {
@@ -33,6 +32,19 @@
             switch (e.item.name) {
                 case "ToggleFilterPanel":
                     toggleFilterPanel();
+                    break;
+                case "Save":
+                    if (!(HasChanges()))
+                        return;
+                    _savecancel(true);
+                    break;
+                case "Cancel":
+                    if (HasChanges()) {
+                        _savecancel(false);
+                    }
+                    else {
+                        return;
+                    }
                     break;
                 case "New":
                     gridView.AddNewRow();
@@ -109,17 +121,63 @@
                     break;
             }
         }
-        function OnUniteChanged(cmbUnite) {
-            if (cmbUnite !== undefined & cmbUnite !== null) {
-                var x = cmbUnite.GetSelectedItem();
-                if (x !== undefined & x !== null) {
-                    //gridView.GetEditor("company").SetValue(x.GetColumnText('uid_company'));
-                    //gridView.GetEditor("prodpol").SetValue(x.GetColumnText('prodpol'));
-                    gridView.GetEditor("uid_prodpol").SetValue(x.GetColumnText('uid_prodpol'));
-                    //gridView.GetEditor("uid_prodpol").SetValue(x.GetColumnText('prodpol'));
-                }
+        /**PARA GUARDAR O LIMPIAR CAMBIOS DE CARDVIEW Y GRIDVIEW EN EL Client_Edit**/
+        function HasChanges() {
+            return (cvClientEdit.batchEditApi.HasChanges() || gridView.batchEditApi.HasChanges());
+        }
+        function _savecancel(_cambios) {
+            if (_cambios) {
+                cvClientEdit.UpdateEdit();
+                gridView.UpdateEdit();
+            } else {
+                cvClientEdit.CancelEdit();
+                gridView.CancelEdit();
             }
         }
+        function OnEndCallback(s, e) {
+            if (!HasChanges()) {
+            }
+            lastEditedCpy = -1;
+        }
+        /**PARA GUARDAR O LIMPIAR CAMBIOS DE CARDVIEW Y GRIDVIEW EN EL Client_Edit**/
+
+        /**FILTRA EL COMBOBOX DE PRODUCTO CONFORME A LA SELECCION DEL COMBOBOX COMPANY**/
+        var currentRowIndex = -1;
+        var currentColumnIndex = -1;
+        var lastEditedCpy = -1;
+
+        function onBatchEditStartEditing(s, e) {
+            currentRowIndex = e.visibleIndex;
+            currentColumnIndex = e.focusedColumn.index;
+            var currentCpy = s.batchEditApi.GetCellValue(currentRowIndex, "uid_company");
+            if (currentCpy != lastEditedCpy && e.focusedColumn.fieldName == "uid_prodpol") {
+                lastEditedCpy = currentCpy;
+                e.cancel = true;
+                cmbProd.PerformCallback(lastEditedCpy);
+            }
+        }
+        function onSelectedCpyChanged(s, e) {
+            lastEditedCpy = s.GetValue();
+            gridView.batchEditApi.SetCellValue(currentRowIndex, "uid_prodpol", null);
+            cmbProd.PerformCallback(s.GetValue());
+        }
+        function onGridEndCallback(s, e) {
+            lastEditedCpy = -1;
+        }
+        function onFocusedCellChanging(s, e) {
+            e.cancel = cmbProd.InCallback();
+        }
+        function onProdEndCallback(s, e) {
+            lp.Hide();
+            gridView.batchEditApi.StartEdit(currentRowIndex, currentColumnIndex);
+        }
+        function onBeginCallback(s, e) {
+            window.setTimeout(function () {
+                if (cmbProd.InCallback()) lp.ShowInElement(gridView.batchEditApi.GetCellTextContainer(currentRowIndex, "uid_prodpol"));
+            }, 300);
+        }
+        /**FILTRA EL COMBOBOX DE PRODUCTO CONFORME A LA SELECCION DEL COMBOBOX COMPANY**/
+
         //function OnMoreInfoClick(contentUrl) {
         //    clientPopupControl.SetContentUrl(contentUrl);
         //    clientPopupControl.Show();
@@ -147,9 +205,6 @@
         <ClientSideEvents ItemClick="onFiltersNavBarItemClick" />
     </dx:ASPxNavBar>
 </asp:Content>
-    
-<%--<asp:Content ContentPlaceHolderID="RightPanelContent" runat="server">
-</asp:Content>--%>
 
 <asp:Content ContentPlaceHolderID="PageToolbar" runat="server">
     <dx:ASPxMenu runat="server" ID="PageToolbar" ClientInstanceName="pageToolbar"
@@ -221,27 +276,18 @@
     </dx:ASPxCallback>
     <dx:EntityServerModeDataSource ID="dsPolizas" runat="server" EnableInsert="true" EnableUpdate="true" OnSelecting="dsPolizas_Selecting" OnInserting="dsPolizas_Inserting" OnUpdating="dsPolizas_Updating" ContextTypeName="ClientsDataModel" TableName="vpoliza" />
     <asp:SqlDataSource ID="dsClients" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="SELECT uid_client, nombre FROM vclients order by nombre" />
-    <asp:SqlDataSource ID="dsProdPol" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="select uid_prodpol, prodpol from dbo.vprodpol order by prodpol" />
-    <asp:SqlDataSource ID="dsCpyProd" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="CpyProdComboSP" SelectCommandType="StoredProcedure">
-        <SelectParameters>
-            <asp:SessionParameter Name="Cpyname" SessionField="Cpyname" Type="String" />
-            <asp:SessionParameter DefaultValue="1" Name="startIndex" SessionField="startIndex" Type="Int32" />
-            <asp:SessionParameter DefaultValue="200" Name="endIndex" SessionField="endIndex" Type="Int32" />
-            <asp:Parameter DefaultValue="dbo.vpolizas" Name="TabSch" Type="String" />
-        </SelectParameters>
-    </asp:SqlDataSource>
+    <asp:SqlDataSource ID="dsProdPol" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="select uid_prodpol, prodpol from dbo.vprodpol" />
+    <asp:SqlDataSource ID="dsCpy" runat="server" ConnectionString="<%$ ConnectionStrings:ModelClients %>" SelectCommand="SELECT uid_company, company FROM dbo.vcompany ORDER BY company"/>
     
+    <dx:ASPxLoadingPanel runat="server" ID="loadingPanel" ClientInstanceName="lp" Modal="true" />
     <dx:ASPxGridView runat="server" ID="GridView" ClientInstanceName="gridView" KeyFieldName="uid_poliza" KeyboardSupport="True" EnablePagingGestures="False" Width="100%"
         DataSourceID="dsPolizas"
-        OnRowUpdating="GridView_RowUpdating" OnRowInserting="GridView_RowInserting" AutoGenerateColumns="False"
+        OnRowUpdating="GridView_RowUpdating" OnRowInserting="GridView_RowInserting" AutoGenerateColumns="False" OnCellEditorInitialize="GridView_CellEditorInitialize"
         OnCustomErrorText="GridView_CustomErrorText">
-        
-        <%--<ClientSideEvents Init="onGridViewInit" SelectionChanged="onGridViewSelectionChanged" RowDblClick="edicion" /> --%>
-        <ClientSideEvents Init="onGridViewInit" SelectionChanged="onGridViewSelectionChanged" />
+        <ClientSideEvents Init="onGridViewInit" SelectionChanged="onGridViewSelectionChanged" BatchEditStartEditing="onBatchEditStartEditing" EndCallback="onGridEndCallback" FocusedCellChanging="onFocusedCellChanging" />
         <SettingsDataSecurity AllowReadUnlistedFieldsFromClientApi="True" />
         <SettingsResizing ColumnResizeMode="Control" />
         <SettingsBehavior AllowFocusedRow="true" AllowSelectByRowClick="true" AllowEllipsisInText="true" AllowDragDrop="false"/>
-        <%--<SettingsEditing Mode="PopupEditForm" EditFormColumnCount="2" />--%>
         <SettingsEditing Mode="Batch" UseFormLayout="false" NewItemRowPosition="Bottom">
             <BatchEditSettings EditMode="Row"  />
         </SettingsEditing> 
@@ -251,48 +297,17 @@
             <PageSizeItemSettings Visible="true"></PageSizeItemSettings>
         </SettingsPager>
         <SettingsExport EnableClientSideExportAPI="true" ExportSelectedRowsOnly="true" />
-        <SettingsPopup>
-            <EditForm>
-                <SettingsAdaptivity MaxWidth="800" Mode="Always" VerticalAlign="WindowCenter" />
-            </EditForm>
-            <FilterControl AutoUpdatePosition="False"></FilterControl>
-        </SettingsPopup>
         <Styles>
             <Cell Wrap="false" />
             <PagerBottomPanel CssClass="pager" />
             <FocusedRow CssClass="focused" />
         </Styles>
         <Paddings PaddingTop="0px" />
-        
-        <EditFormLayoutProperties UseDefaultPaddings="false">
-            <Items>
-                <dx:GridViewLayoutGroup ColSpan="1" ColCount="2" ColumnCount="2" ShowCaption="False" >
-                    <Items>
-                        <dx:GridViewColumnLayoutItem Caption="Nombre" ColSpan="1" ColumnName="nombre">
-                        </dx:GridViewColumnLayoutItem>
-                        <dx:GridViewColumnLayoutItem Caption="Poliza" ColSpan="1" ColumnName="no_poliza">
-                        </dx:GridViewColumnLayoutItem>
-                        <dx:GridViewColumnLayoutItem Caption="Fech. Ini." ColSpan="1" ColumnName="fech_inicio">
-                        </dx:GridViewColumnLayoutItem>
-                        <dx:GridViewColumnLayoutItem Caption="Tipo de Pago" ColSpan="1" ColumnName="Frec. Pago">
-                        </dx:GridViewColumnLayoutItem>
-                        <dx:GridViewColumnLayoutItem Caption="Compañia" ColSpan="1" ColumnName="company">
-                        </dx:GridViewColumnLayoutItem>
-                        <dx:GridViewColumnLayoutItem Caption="Producto" ColSpan="1" ColumnName="uid_prodpol">
-                        </dx:GridViewColumnLayoutItem>
-                        <dx:GridViewColumnLayoutItem ColSpan="1" ColumnName="uid_client" Visible="true" Width="0" Border-BorderStyle="None" ShowCaption="False">
-                        </dx:GridViewColumnLayoutItem>
-                        <dx:EditModeCommandLayoutItem ColSpan="2" HorizontalAlign="Right">
-                        </dx:EditModeCommandLayoutItem>
-                    </Items>
-                </dx:GridViewLayoutGroup>
-            </Items>
-        </EditFormLayoutProperties>
         <Columns>
             <dx:GridViewCommandColumn ShowSelectCheckbox="True" SelectAllCheckboxMode="AllPages" VisibleIndex="13" FixedStyle="Left" Width="52"></dx:GridViewCommandColumn>
             <dx:GridViewDataTextColumn FieldName="uid_poliza" ReadOnly="True" Visible="False" VisibleIndex="0">
             </dx:GridViewDataTextColumn>
-            <dx:GridViewDataComboBoxColumn Caption="Nombre" FieldName="nombre" ShowInCustomizationForm="True" VisibleIndex="2" Width="350px">
+            <dx:GridViewDataComboBoxColumn Caption="Nombre" FieldName="uid_client" ShowInCustomizationForm="True" VisibleIndex="2" Width="350px">
                 <PropertiesComboBox ValueField="uid_client" TextField="nombre" DataSourceID="dsClients">
                     <%--<ClientSideEvents Init="function(s, e) { OnComboBoxInit(s, e); }" />--%>
                 </PropertiesComboBox>
@@ -306,9 +321,9 @@
             </dx:GridViewDataTextColumn>
             <dx:GridViewDataDateColumn Caption="Fech. Ini." FieldName="fech_inicio" VisibleIndex="4" ShowInCustomizationForm="true" Width="120">
             </dx:GridViewDataDateColumn>
-            <dx:GridViewDataDateColumn Caption="Vencimiento" FieldName="fech_vencimiento" VisibleIndex="5" ShowInCustomizationForm="true" Width="120">
-            </dx:GridViewDataDateColumn>
-            <%--<dx:GridViewDataComboBoxColumn Caption="Frec. Pago" FieldName="FrecuenciaDePago" VisibleIndex="6" ShowInCustomizationForm="true" Width="150">--%>
+            <dx:GridViewDataTextColumn Caption="Vencimiento" FieldName="fech_vencimiento" VisibleIndex="5" ReadOnly="true" ShowInCustomizationForm="true" Width="120">
+                 <PropertiesTextEdit DisplayFormatString="d"></PropertiesTextEdit>
+            </dx:GridViewDataTextColumn>
             <dx:GridViewDataComboBoxColumn Caption="Frec. Pago" FieldName="tipo_pago" VisibleIndex="6" ShowInCustomizationForm="true" Width="150">
                 <PropertiesComboBox>
                     <Items>
@@ -319,33 +334,23 @@
                     </Items>
                 </PropertiesComboBox>
             </dx:GridViewDataComboBoxColumn>
-            <dx:GridViewDataDateColumn Caption="Sig. Pago" FieldName="nxt_pago" VisibleIndex="7" ShowInCustomizationForm="true" Width="120">
-            </dx:GridViewDataDateColumn>
-            <dx:GridViewDataComboBoxColumn Name="company" Caption="Compañia" FieldName="uid_company" VisibleIndex="8" ShowInCustomizationForm="true" Width="200">
-                <PropertiesComboBox ClientInstanceName="cbCpyProd" TextField="company" ValueField="uid_company" ValueType="System.String" EnableCallbackMode="true" CallbackPageSize="10" OnItemRequestedByValue="cbCpyProd_ItemRequestedByValue"
-                    OnItemsRequestedByFilterCondition="cbCpyProd_ItemsRequestedByFilterCondition" LoadDropDownOnDemand="false" TextFormatString="{0}" FilterMinLength="0" DropDownStyle="DropDown" EnableClientSideAPI="true">
-                    <Columns>
-                        <dx:ListBoxColumn FieldName="uid_company" Visible="false">
-                        </dx:ListBoxColumn>
-                        <dx:ListBoxColumn FieldName="company" Caption="Compañia" Visible="true">
-                        </dx:ListBoxColumn>
-                        <dx:ListBoxColumn FieldName="uid_prodpol" Width="0px">
-                        </dx:ListBoxColumn>
-                        <dx:ListBoxColumn FieldName="prodpol" Caption="Producto" Visible="true">
-                        </dx:ListBoxColumn>
-                    </Columns>
-                    <ClientSideEvents SelectedIndexChanged="function(s, e) {OnUniteChanged(s);}" />
+            <dx:GridViewDataTextColumn Caption="Sig. Pago" FieldName="nxt_pago" VisibleIndex="7" ReadOnly="true" ShowInCustomizationForm="true" Width="120">
+                 <PropertiesTextEdit DisplayFormatString="d"></PropertiesTextEdit>
+            </dx:GridViewDataTextColumn>
+
+            <dx:GridViewDataComboBoxColumn Caption="Compañia" FieldName="uid_company" ShowInCustomizationForm="true" VisibleIndex="8"  Width="200">
+                <PropertiesComboBox ClientInstanceName="cbCpyProd" TextField="company" ValueField="uid_company" ValueType="System.String" EnableSynchronization="false" DataSecurityMode="Strict" 
+                    IncrementalFilteringMode="StartsWith" DataSourceID="dsCpy">
+                    <ClientSideEvents SelectedIndexChanged="onSelectedCpyChanged" />
                 </PropertiesComboBox>
             </dx:GridViewDataComboBoxColumn>
-            <%--<dx:GridViewDataTextColumn FieldName="uid_prodpol" ReadOnly="True" Visible="False" VisibleIndex="9">
-            </dx:GridViewDataTextColumn>--%>
-            <%--<dx:GridViewDataTextColumn Caption="Producto" FieldName="prodpol" Visible="true" VisibleIndex="10" ShowInCustomizationForm="true" Width="300">
-            </dx:GridViewDataTextColumn>--%>
-            <dx:GridViewDataComboBoxColumn Caption="Producto" FieldName="uid_prodpol" VisibleIndex="12" Visible="true" ReadOnly="true" ShowInCustomizationForm="true" Width="300">
-                <PropertiesComboBox DataSourceID="dsProdPol" ValueField="uid_prodpol" TextField="prodpol" >
+            <dx:GridViewDataComboBoxColumn Caption="Producto" FieldName="uid_prodpol" VisibleIndex="9" ShowInCustomizationForm="true" Width="300">
+                <PropertiesComboBox EnableSynchronization="false" IncrementalFilteringMode="StartsWith" ClientInstanceName="cmbProd" DataSourceID="dsProdPol" TextField="prodpol" ValueField="uid_prodpol" ValueType="System.String" DataSecurityMode="Strict" >
+                <ClientSideEvents EndCallback="onProdEndCallback" BeginCallback="onBeginCallback" />
                 </PropertiesComboBox>
             </dx:GridViewDataComboBoxColumn>
-            <dx:GridViewDataTextColumn Caption="Estatus" FieldName="estatus" CellStyle-HorizontalAlign="Center" VisibleIndex="11" Width="90" >
+
+            <dx:GridViewDataTextColumn Caption="Estatus" FieldName="estatus" CellStyle-HorizontalAlign="Center" ReadOnly="true" VisibleIndex="10" Width="90" >
                 <%--<DataItemTemplate>
                     <span class="status-column" <%# Eval("estatus")  %>" > </span>
                 </DataItemTemplate>--%>

@@ -55,9 +55,9 @@
             <dx:MenuItem Name="Edit" Text="Edit" Alignment="Right" AdaptivePriority="2">
                 <Image Url="Content/Images/edit.svg" />
             </dx:MenuItem>
-            <dx:MenuItem Name="Delete" Text="Delete" Alignment="Right" AdaptivePriority="2">
+            <%--<dx:MenuItem Name="Delete" Text="Delete" Alignment="Right" AdaptivePriority="2">
                 <Image Url="Content/Images/delete.svg" />
-            </dx:MenuItem>
+            </dx:MenuItem>--%>
             <dx:MenuItem Name="Export" Text="Export" Alignment="Right" AdaptivePriority="2">
                 <Image Url="Content/Images/export.svg" />
             </dx:MenuItem>
@@ -81,7 +81,7 @@
     <dx:ASPxCallback ID="cbpage" ClientInstanceName="cbpage" runat="server" OnCallback="cbpage_Callback">
         <ClientSideEvents CallbackComplete="cbpageCallbackComplete" />
     </dx:ASPxCallback>
-    <dx:EntityServerModeDataSource ID="dsClients" runat="server" EnableInsert="true" EnableUpdate="true" EnableDelete="True"  OnSelecting="dsClients_Selecting" OnInserting="dsClients_Inserting" OnUpdating="dsClients_Updating" OnDeleting="dsClients_Deleting" ContextTypeName="ClientsDataModel" TableName="vclients" />
+    <dx:EntityServerModeDataSource ID="dsClients" runat="server" EnableInsert="true" EnableUpdate="true" OnSelecting="dsClients_Selecting" OnInserting="dsClients_Inserting" OnUpdating="dsClients_Updating" ContextTypeName="ClientsDataModel" TableName="vclients" />
     <dx:ASPxGridView runat="server" ID="GridView" ClientInstanceName="gridView" 
         KeyFieldName="uid_client" KeyboardSupport="true" EnablePagingGestures="False" Width="100%"
         DataSourceID="dsClients"

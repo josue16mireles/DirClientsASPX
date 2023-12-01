@@ -9,11 +9,13 @@ namespace ClientsDataModel
     [Table("vprodpol")]
     public partial class vprodpol
     {
+        [StringLength(250)]
+        public string uid_prodpol { get; set; }
+
+        [StringLength(250)]
+        public string uid_company { get; set; }
+
         [Key]
-        public Guid uid_prodpol { get; set; }
-
-        public Guid? uid_company { get; set; }
-
         [StringLength(50)]
         public string prodpol { get; set; }
     }

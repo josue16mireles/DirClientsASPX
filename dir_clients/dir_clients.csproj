@@ -85,6 +85,7 @@
     <Reference Include="DevExpress.Web.ASPxScheduler.v22.2, Version=22.2.3.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Polizas.aspx" />
     <Content Include="Account\Register.aspx" />
     <Content Include="Account\SignIn.aspx" />
     <Content Include="App_Data\ApplicationMenuDataSource.sitemap" />
@@ -189,7 +190,6 @@
     <Content Include="GridView.aspx" />
     <Content Include="GridViewDetailsPage.aspx" />
     <Content Include="NewCpyProd.ascx" />
-    <Content Include="Polizas.aspx" />
     <Content Include="Scheduler.aspx" />
   </ItemGroup>
   <ItemGroup>
@@ -206,6 +206,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Polizas.aspx.cs">
+      <DependentUpon>Polizas.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Polizas.aspx.designer.cs">
+      <DependentUpon>Polizas.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Account\Register.aspx.cs">
       <DependentUpon>Register.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -274,13 +281,6 @@
     </Compile>
     <Compile Include="NewCpyProd.ascx.designer.cs">
       <DependentUpon>NewCpyProd.ascx</DependentUpon>
-    </Compile>
-    <Compile Include="Polizas.aspx.cs">
-      <DependentUpon>Polizas.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="Polizas.aspx.designer.cs">
-      <DependentUpon>Polizas.aspx</DependentUpon>
     </Compile>
     <Compile Include="Root.master.cs">
       <DependentUpon>Root.master</DependentUpon>

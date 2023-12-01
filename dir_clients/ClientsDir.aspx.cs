@@ -129,12 +129,6 @@ namespace dir_clients
                 }
             }
         }
-        protected void dsClients_Deleting(object sender, LinqServerModeDataSourceEditEventArgs e)
-        {
-            var o = (Guid)e.Keys[GridView.KeyFieldName];
-            DBFunciones.IContext.Database.ExecuteSqlCommand("DELETE FROM dbo.client_dir WHERE uid_client = {0}", o);
-            e.Handled = true;
-        }
         protected void GridView_RowUpdating(object sender, ASPxDataUpdatingEventArgs e)
         {
             var x = (ASPxGridView)sender;

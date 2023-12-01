@@ -10,11 +10,10 @@ namespace ClientsDataModel
     public partial class vcompany
     {
         [Key]
-        [Column(Order = 0)]
-        public Guid uid_company { get; set; }
+        [StringLength(250)]
+        public string uid_company { get; set; }
 
-        [Key]
-        [Column(Order = 1)]
+        
         [StringLength(50)]
         public string company { get; set; }
     }

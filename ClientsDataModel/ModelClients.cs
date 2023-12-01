@@ -26,6 +26,10 @@ namespace ClientsDataModel
                  .IsUnicode(false);
 
             modelBuilder.Entity<vpoliza>()
+                .Property(e => e.uid_prodpol)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<vpoliza>()
                 .Property(e => e.tipo_pago)
                 .IsUnicode(false);
 
@@ -35,6 +39,10 @@ namespace ClientsDataModel
 
             modelBuilder.Entity<vpoliza>()
                 .Property(e => e.estatus)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<vcompany>()
+                .Property(e => e.uid_company)
                 .IsUnicode(false);
 
         }

@@ -6,15 +6,9 @@ using System.Data;
 using System.Collections.Generic;
 using System.Data.Entity.Validation;
 using System.Linq;
-using System.Net.Sockets;
-using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using static System.String;
-using DevExpress.XtraRichEdit.Fields;
-using dir_clients.Model;
-using System.Data.Entity;
-using DevExpress.Web.Internal.XmlProcessor;
 
 namespace dir_clients
 {
@@ -129,7 +123,8 @@ namespace dir_clients
                     throw new Exception("Seleccione una fecha de inicio en el calendario.");
                 if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
                     throw new Exception("Seleccione la frecuencia de pago en la lista.");
-                if ((Guid?)e.Values["uid_prodpol"] == null)
+                //if ((Guid?)e.Values["uid_prodpol"] == null)
+                if (IsNullOrEmpty((string)e.Values["uid_prodpol"]))
                     throw new Exception("Seleccione un producto de la lista.");
                 if (IsNullOrEmpty((string)e.Values["uid_company"]))
                     throw new Exception("Seleccione una compañia de la lista.");
@@ -140,7 +135,7 @@ namespace dir_clients
                     uid_client = SessionMov,
                     no_poliza = (string)e.Values["no_poliza"],
                     fech_inicio = (DateTime)e.Values["fech_inicio"],
-                    uid_prodpol = (Guid)e.Values["uid_prodpol"],
+                    uid_prodpol = (string)e.Values["uid_prodpol"],
                     tipo_pago = (string)e.Values["tipo_pago"],
                     uid_company = (string)e.Values["uid_company"],
                 };
@@ -174,7 +169,8 @@ namespace dir_clients
                     throw new Exception("Seleccione una fecha de inicio en el calendario.");
                 if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
                     throw new Exception("Seleccione la frecuencia de pago en la lista.");
-                if ((Guid?)e.Values["uid_prodpol"] == null)
+                //if ((Guid?)e.Values["uid_prodpol"] == null)
+                if (IsNullOrEmpty((string)e.Values["uid_prodpol"]))
                     throw new Exception("Seleccione un producto de la lista.");
                 if (IsNullOrEmpty((string)e.Values["uid_company"]))
                     throw new Exception("Seleccione una compañia de la lista.");
@@ -185,9 +181,9 @@ namespace dir_clients
                     i.uid_client = SessionMov;
                     i.no_poliza = (string)e.Values["no_poliza"];
                     i.fech_inicio = (DateTime)e.Values["fech_inicio"];
-                    i.uid_prodpol = (Guid)e.Values["uid_prodpol"];
                     i.tipo_pago = (string)e.Values["tipo_pago"];
                     i.uid_company = (string)e.Values["uid_company"];
+                    i.uid_prodpol = (string)e.Values["uid_prodpol"];
                     DBFunciones.IContext.SaveChanges();
                 }
                 e.Handled = true;
@@ -251,31 +247,29 @@ namespace dir_clients
                 e.Visible = false;
         }
 
-
-        protected void cbCpyProd_ItemRequestedByValue(object source, ListEditItemRequestedByValueEventArgs e)
+        protected void GridView_CellEditorInitialize(object sender, ASPxGridViewEditorEventArgs e)
         {
-            if (GridView.VisibleRowCount <= 0 || FiLoad == 1 || IsNullOrEmpty(e.Value?.ToString())) return;
-            var comboBox = (ASPxComboBox)source;
-            if (comboBox == null) return;
-            Session["Cpyname"] = SessionMov.ToString();
-            Session["startIndex"] = 1;
-            Session["endIndex"] = 200 + 1;
-            comboBox.DataSource = dsCpyProd;
-            comboBox.DataBind();
-            FiLoad = 1;
+            ASPxGridView gridView = sender as ASPxGridView;
+            if (e.Column.FieldName == "uid_prodpol")
+            {
+                ASPxComboBox cmbProd = (e.Editor as ASPxComboBox);
+                cmbProd.Callback += cmbProd_OnCallback;
+            }
         }
-
-        protected void cbCpyProd_ItemsRequestedByFilterCondition(object source, ListEditItemsRequestedByFilterConditionEventArgs e)
+        protected void FillProdCombo(ASPxComboBox cmb, string cpy)
         {
-            if (e.Filter == Empty)
-                return;
-            var filter = $"%{e.Filter}%";
-            var comboBox = (ASPxComboBox)source;
-            Session["Cpyname"] = filter;
-            Session["startIndex"] = e.BeginIndex + 1;
-            Session["endIndex"] = e.EndIndex + 1;
-            comboBox.DataSource = dsCpyProd;
-            comboBox.DataBind();
+            cmb.DataSourceID = null;
+            cmb.Items.Clear();
+
+            if (!string.IsNullOrEmpty(cpy))
+            {
+                cmb.DataSource = DBFunciones.IContext.vprodpols.Where(i => i.uid_company == cpy).AsQueryable().ToList();
+                cmb.DataBindItems();
+            }
+        }
+        void cmbProd_OnCallback(object source, CallbackEventArgsBase e)
+        {
+            FillProdCombo(source as ASPxComboBox, e.Parameter);
         }
     }
 }

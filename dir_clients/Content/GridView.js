@@ -19,7 +19,7 @@
     }
     function updateToolbarButtonsState() {
         var enabled = gridView.GetSelectedRowCount() > 0;
-        pageToolbar.GetItemByName("Delete").SetEnabled(enabled);
+        //pageToolbar.GetItemByName("Delete").SetEnabled(enabled);
         pageToolbar.GetItemByName("Export").SetEnabled(enabled);
 
         pageToolbar.GetItemByName("Edit").SetEnabled(gridView.GetFocusedRowIndex() !== -1);
@@ -35,9 +35,9 @@
             case "Edit":
                 gridView.StartEditRow(gridView.GetFocusedRowIndex());
                 break;
-            case "Delete":
-                deleteSelectedRecords();
-                break;
+            //case "Delete":
+            //    deleteSelectedRecords();
+            //    break;
             case "Export":
                 gridView.ExportTo(ASPxClientGridViewExportFormat.Xlsx);
                 break;
@@ -45,11 +45,11 @@
     }
     
     
-    function deleteSelectedRecords() {
-        if(confirm('Confirm Delete?')) {
-            gridView.PerformCallback('delete');
-        }
-    }
+    //function deleteSelectedRecords() {
+    //    if(confirm('Confirm Delete?')) {
+    //        gridView.PerformCallback('delete');
+    //    }
+    //}
     function onFiltersNavBarItemClick(s, e) {
         var filters = {
             All: "",

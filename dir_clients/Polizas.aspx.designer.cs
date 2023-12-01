@@ -96,13 +96,22 @@ namespace dir_clients
         protected global::System.Web.UI.WebControls.SqlDataSource dsProdPol;
 
         /// <summary>
-        /// dsCpyProd control.
+        /// dsCpy control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.SqlDataSource dsCpyProd;
+        protected global::System.Web.UI.WebControls.SqlDataSource dsCpy;
+
+        /// <summary>
+        /// loadingPanel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::DevExpress.Web.ASPxLoadingPanel loadingPanel;
 
         /// <summary>
         /// GridView control.

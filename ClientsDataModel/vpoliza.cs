@@ -35,15 +35,14 @@ namespace ClientsDataModel
 
         public DateTime? nxt_pago { get; set; }
 
-        //[Key]
-        [Column(Order = 4)]
-        public Guid uid_prodpol { get; set; }
+        [StringLength(250)]
+        public string uid_prodpol { get; set; }
 
         [StringLength(50)]
         public string prodpol { get; set; }
 
         //[Key]
-        [Column(Order = 5)]
+        [Column(Order = 4)]
         [StringLength(5)]
         public string tipo_pago { get; set; }
 
