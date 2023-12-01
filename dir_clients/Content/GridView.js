@@ -19,7 +19,7 @@
     }
     function updateToolbarButtonsState() {
         var enabled = gridView.GetSelectedRowCount() > 0;
-        //pageToolbar.GetItemByName("Delete").SetEnabled(enabled);
+        pageToolbar.GetItemByName("Delete").SetEnabled(enabled);
         pageToolbar.GetItemByName("Export").SetEnabled(enabled);
 
         pageToolbar.GetItemByName("Edit").SetEnabled(gridView.GetFocusedRowIndex() !== -1);

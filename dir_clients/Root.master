@@ -49,7 +49,7 @@
                             </dx:ASPxMenu>
                         </div>
                     
-                        <div class="right-block">
+                        <%--<div class="right-block">
                             <dx:ASPxMenu runat="server" ID="RightAreaMenu" ClientInstanceName="rightAreaMenu"
                                 ItemAutoWidth="false" ItemWrap="false" ShowPopOutImages="False"
                                 SeparatorWidth="0" ApplyItemStyleToTemplates="true"
@@ -90,7 +90,7 @@
                                 </Items>
                                 <ClientSideEvents ItemClick="onRightMenuItemClick" />
                             </dx:ASPxMenu>
-                        </div>
+                        </div>--%>
 
                         <div class="menu-container">
                             <div>

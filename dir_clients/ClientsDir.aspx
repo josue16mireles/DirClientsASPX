@@ -140,7 +140,7 @@
             </Items>
         </EditFormLayoutProperties>
         <Columns>
-            <%--<dx:GridViewCommandColumn ShowSelectCheckbox="True" SelectAllCheckboxMode="AllPages" VisibleIndex="0" Width="45"></dx:GridViewCommandColumn>--%>
+            <dx:GridViewCommandColumn ShowSelectCheckbox="True" SelectAllCheckboxMode="AllPages" VisibleIndex="0" Width="45"></dx:GridViewCommandColumn>
             <dx:GridViewDataTextColumn FieldName="uid_client" ShowInCustomizationForm="True" Visible="False" VisibleIndex="1">
             </dx:GridViewDataTextColumn>
             <dx:GridViewDataHyperLinkColumn FieldName="nombre" Name="Nombre" Caption="Nombre" ShowInCustomizationForm="True" VisibleIndex="2" Width="300px">

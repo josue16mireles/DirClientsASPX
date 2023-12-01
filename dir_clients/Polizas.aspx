@@ -123,14 +123,12 @@
         }
         /**PARA GUARDAR O LIMPIAR CAMBIOS DE CARDVIEW Y GRIDVIEW EN EL Client_Edit**/
         function HasChanges() {
-            return (cvClientEdit.batchEditApi.HasChanges() || gridView.batchEditApi.HasChanges());
+            return (gridView.batchEditApi.HasChanges());
         }
         function _savecancel(_cambios) {
             if (_cambios) {
-                cvClientEdit.UpdateEdit();
                 gridView.UpdateEdit();
             } else {
-                cvClientEdit.CancelEdit();
                 gridView.CancelEdit();
             }
         }
@@ -221,6 +219,12 @@
                 <Template>
                     <h1>Polizas</h1>
                 </Template>
+            </dx:MenuItem>
+            <dx:MenuItem Name="Save" Text="Guardar" Alignment="Right" AdaptivePriority="2">
+                <Image Url="Content/Images/save.svg" />
+            </dx:MenuItem>
+             <dx:MenuItem Name="Cancel" Text="Cancelar" Alignment="Right" AdaptivePriority="2">
+                <Image Url="Content/Images/cancel.svg" />
             </dx:MenuItem>
             <dx:MenuItem Name="New" Text="New" Alignment="Right" AdaptivePriority="2">
                 <Image Url="Content/Images/add.svg" />
