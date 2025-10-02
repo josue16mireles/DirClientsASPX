@@ -1,4 +1,5 @@
 //using ClientsDataModel.test;
+using ClientsDataModel.test;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
@@ -15,9 +16,9 @@ namespace ClientsDataModel
 
         public virtual DbSet<vclient> vclients { get; set; }
         public virtual DbSet<vpoliza> vpolizas { get; set; }
-        public virtual DbSet<vcpy_prod> vcpy_prod { get; set; }
         public virtual DbSet<vcompany> vcompanies { get; set; }
-        public virtual DbSet<vprodpol> vprodpols { get; set; }
+        public virtual DbSet<vproduct> vproducts { get; set; }
+        public virtual DbSet<vCompany_Products> vCompany_Products { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -26,7 +27,7 @@ namespace ClientsDataModel
                  .IsUnicode(false);
 
             modelBuilder.Entity<vpoliza>()
-                .Property(e => e.uid_prodpol)
+                .Property(e => e.uid_product)
                 .IsUnicode(false);
 
             modelBuilder.Entity<vpoliza>()
@@ -38,11 +39,24 @@ namespace ClientsDataModel
             .IsUnicode(false);
 
             modelBuilder.Entity<vpoliza>()
-                .Property(e => e.estatus)
+               .Property(e => e.estatus)
+               .IsUnicode(false);
+            modelBuilder.Entity<vpoliza>()
+                .Property(e => e.Evento)
                 .IsUnicode(false);
-
             modelBuilder.Entity<vcompany>()
                 .Property(e => e.uid_company)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<vproduct>()
+                .Property(e => e.uid_product)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<vCompany_Products>()
+                .Property(e => e.uid_company)
+                .IsUnicode(false);
+            modelBuilder.Entity<vCompany_Products>()
+                .Property(e => e.uid_product)
                 .IsUnicode(false);
 
         }

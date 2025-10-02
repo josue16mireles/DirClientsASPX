@@ -18,6 +18,7 @@ namespace dir_clients.Classes
             }
             set { _iContext = value; }
         }
+
         public static void IsGuid(string uid, out Guid uidout)
         {
             Guid.TryParse(uid, out uidout);

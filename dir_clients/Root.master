@@ -10,6 +10,7 @@
     <link rel="stylesheet" type="text/css" href='<%# ResolveUrl("~/Content/Content.css") %>' />
     <link rel="stylesheet" type="text/css" href='<%# ResolveUrl("~/Content/Layout.css") %>' />
     <asp:ContentPlaceHolder ID="Head" runat="server"></asp:ContentPlaceHolder>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src='<%# ResolveUrl("~/Content/Script.js") %>'></script>
     <script type="text/javascript">
         function ShowWindow(x, value, header) {

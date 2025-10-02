@@ -13,7 +13,6 @@ namespace ClientsDataModel
         [StringLength(250)]
         public string uid_company { get; set; }
 
-        
         [StringLength(50)]
         public string company { get; set; }
     }

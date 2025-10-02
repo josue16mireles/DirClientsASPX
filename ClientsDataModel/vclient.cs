@@ -29,7 +29,7 @@ namespace ClientsDataModel
         [StringLength(100)]
         public string email2 { get; set; }
 
-        public int canpol { get; set; }
+        public int? canpol { get; set; }
 
         public string relacionado { get; set; }
         [StringLength(30)]

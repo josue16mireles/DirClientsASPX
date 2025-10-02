@@ -127,11 +127,11 @@ html
     float: right;
 }
 
-.header-logo
-{
+.header-logo {
     background: url('Images/logo.svg') no-repeat center;
-    height: 26px;
-    width: 150px;
+    background-size: contain;
+    height: 50px;
+    width: 200px;
 }
 
 @media (max-width: 359px)

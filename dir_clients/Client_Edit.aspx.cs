@@ -9,12 +9,14 @@ using System.Linq;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using static System.String;
+using System.Configuration;
+using System.Data.SqlClient;
+using System.Web.Services;
 
 namespace dir_clients
 {
     public partial class Client_Edit : Page
     {
-        public int FiLoad { get; set; }
         private vclient _Getform;
         public vclient Getform
         {
@@ -27,7 +29,7 @@ namespace dir_clients
             }
         }
         private Guid _uidmovs;
-        public Guid UIDMOVS
+        public Guid UIDMOVS 
         {
             set => Session["uidmov"] = value;
             get
@@ -50,7 +52,23 @@ namespace dir_clients
         }
         protected void Page_Load(object sender, EventArgs e)
         {
+            GridView.FilterExpression = "[estatus] = 'activa'";
+            if (!Page.IsPostBack)
+            {
+                var colAno = GridView.Columns["ano"] as GridViewDataComboBoxColumn;
+                if (colAno != null)
+                {
+                    // Agrega una opción vacía al principio
+                    colAno.PropertiesComboBox.Items.Add(" ", null);  
 
+                    for (int year = DateTime.Now.Year + 1; year >= 1950; year--)
+                    {
+                        colAno.PropertiesComboBox.Items.Add(year.ToString(), year);
+                    }
+
+                    colAno.PropertiesComboBox.ValueType = typeof(short);  // Asegura que acepte valores short o null
+                }
+            }
         }
 
         protected void esmdClient_Selecting(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceSelectEventArgs e)
@@ -110,6 +128,7 @@ namespace dir_clients
 
         protected void esmdPolizasClient_Selecting(object sender, DevExpress.Data.Linq.LinqServerModeDataSourceSelectEventArgs e)
         {//selecting gridview
+            DBFunciones.IContext = null;
             e.QueryableSource = DBFunciones.IContext.vpolizas.Where(a => a.uid_client == SessionMov).AsQueryable();
             e.KeyExpression = "uid_poliza";
         }
@@ -123,8 +142,9 @@ namespace dir_clients
                     throw new Exception("Seleccione una fecha de inicio en el calendario.");
                 if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
                     throw new Exception("Seleccione la frecuencia de pago en la lista.");
-                //if ((Guid?)e.Values["uid_prodpol"] == null)
-                if (IsNullOrEmpty((string)e.Values["uid_prodpol"]))
+
+                //if (IsNullOrEmpty((string)e.Values["uid_prodpol"]))
+                if (IsNullOrEmpty((string)e.Values["uid_product"]))
                     throw new Exception("Seleccione un producto de la lista.");
                 if (IsNullOrEmpty((string)e.Values["uid_company"]))
                     throw new Exception("Seleccione una compañia de la lista.");
@@ -134,8 +154,10 @@ namespace dir_clients
                     uid_poliza = Guid.NewGuid(),
                     uid_client = SessionMov,
                     no_poliza = (string)e.Values["no_poliza"],
+                    serie = ((string)e.Values["serie"])?.ToUpper(),
+                    ano = e.Values["ano"] != null && e.Values["ano"].ToString() != "" ? (short?)Convert.ToInt16(e.Values["ano"]) : null,
                     fech_inicio = (DateTime)e.Values["fech_inicio"],
-                    uid_prodpol = (string)e.Values["uid_prodpol"],
+                    uid_product = (string)e.Values["uid_product"],
                     tipo_pago = (string)e.Values["tipo_pago"],
                     uid_company = (string)e.Values["uid_company"],
                 };
@@ -169,8 +191,7 @@ namespace dir_clients
                     throw new Exception("Seleccione una fecha de inicio en el calendario.");
                 if (IsNullOrEmpty((string)e.Values["tipo_pago"]))
                     throw new Exception("Seleccione la frecuencia de pago en la lista.");
-                //if ((Guid?)e.Values["uid_prodpol"] == null)
-                if (IsNullOrEmpty((string)e.Values["uid_prodpol"]))
+                if (IsNullOrEmpty((string)e.Values["uid_product"]))
                     throw new Exception("Seleccione un producto de la lista.");
                 if (IsNullOrEmpty((string)e.Values["uid_company"]))
                     throw new Exception("Seleccione una compañia de la lista.");
@@ -180,10 +201,12 @@ namespace dir_clients
                 {
                     i.uid_client = SessionMov;
                     i.no_poliza = (string)e.Values["no_poliza"];
+                    i.serie = ((string)e.Values["serie"])?.ToUpper();
+                    i.ano = e.Values["ano"] != null && e.Values["ano"].ToString() != "" ? (short?)Convert.ToInt16(e.Values["ano"]) : null;
                     i.fech_inicio = (DateTime)e.Values["fech_inicio"];
                     i.tipo_pago = (string)e.Values["tipo_pago"];
                     i.uid_company = (string)e.Values["uid_company"];
-                    i.uid_prodpol = (string)e.Values["uid_prodpol"];
+                    i.uid_product = (string)e.Values["uid_product"];
                     DBFunciones.IContext.SaveChanges();
                 }
                 e.Handled = true;
@@ -204,6 +227,30 @@ namespace dir_clients
 
         protected void GridView_CustomCallback(object sender, ASPxGridViewCustomCallbackEventArgs e)
         {
+            string filtro = e.Parameters;
+
+            switch (filtro)
+            {
+                case "Cancelada":
+                    GridView.Columns["estatus"].Visible = false;
+                    GridView.Columns["nota"].Visible = true;
+                    GridView.Columns["Evento"].Visible = false;
+                    GridView.FilterExpression = "[estatus] = 'cancelada'";
+                    break;
+                case "Active":
+                    GridView.Columns["estatus"].Visible = false;
+                    GridView.Columns["nota"].Visible = false;
+                    GridView.Columns["Evento"].Visible = true;
+                    GridView.FilterExpression = "[estatus] = 'activa'";
+                    break;
+                case "Vencida":
+                    GridView.Columns["estatus"].Visible = false;
+                    GridView.Columns["nota"].Visible = false;
+                    GridView.Columns["Evento"].Visible = false;
+                    GridView.FilterExpression = "[estatus] = 'vencida'";
+                    break;
+            }
+            esmdPolizasClient.DataBind();
             GridView.DataBind();
         }
 
@@ -250,7 +297,7 @@ namespace dir_clients
         protected void GridView_CellEditorInitialize(object sender, ASPxGridViewEditorEventArgs e)
         {
             ASPxGridView gridView = sender as ASPxGridView;
-            if (e.Column.FieldName == "uid_prodpol")
+            if (e.Column.FieldName == "uid_product")
             {
                 ASPxComboBox cmbProd = (e.Editor as ASPxComboBox);
                 cmbProd.Callback += cmbProd_OnCallback;
@@ -262,8 +309,9 @@ namespace dir_clients
             cmb.Items.Clear();
 
             if (!string.IsNullOrEmpty(cpy))
+            //if (cpy != Guid.Empty)
             {
-                cmb.DataSource = DBFunciones.IContext.vprodpols.Where(i => i.uid_company == cpy).AsQueryable().ToList();
+                cmb.DataSource = DBFunciones.IContext.vCompany_Products.Where(i => i.uid_company == cpy).AsQueryable().ToList();
                 cmb.DataBindItems();
             }
         }
@@ -271,5 +319,31 @@ namespace dir_clients
         {
             FillProdCombo(source as ASPxComboBox, e.Parameter);
         }
+
+        [WebMethod]
+        public static string CancelarPoliza(string uidPoliza, string nota)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ModelClients"].ConnectionString))
+                {
+                    conn.Open();
+                    string query = "UPDATE dbo.polizas SET estatus = 'cancelada', nota = @nota WHERE uid_poliza = @uidPoliza";
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@nota", nota);
+                        cmd.Parameters.AddWithValue("@uidPoliza", uidPoliza);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                return "OK";
+            }
+            catch (Exception ex)
+            {
+                return "Error: " + ex.Message;
+            }
+        }
+
     }
 }

@@ -52,9 +52,9 @@
   <ItemGroup>
     <Compile Include="ModelClients.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="vprodpol.cs" />
+    <Compile Include="vCompany_Products.cs" />
+    <Compile Include="vproduct.cs" />
     <Compile Include="vcompany.cs" />
-    <Compile Include="vcpy_prod.cs" />
     <Compile Include="vclient.cs" />
     <Compile Include="vpoliza.cs" />
   </ItemGroup>

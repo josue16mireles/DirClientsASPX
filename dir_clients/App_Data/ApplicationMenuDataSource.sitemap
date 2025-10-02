@@ -9,9 +9,11 @@
     </siteMapNode>
     <siteMapNode url="Article.aspx" title="Article">
     </siteMapNode>-->
-	<siteMapNode url="ClientsDir.aspx" title="Directorio">
+	<siteMapNode url="Default.aspx" title="Directorio">
 	</siteMapNode>
 	<siteMapNode url="Polizas.aspx" title="Polizas">
-	</siteMapNode>  
+	</siteMapNode>
+	<siteMapNode url="CpyProd.aspx" title="Compañias y Productos">
+	</siteMapNode>
   </siteMapNode>
 </siteMap>

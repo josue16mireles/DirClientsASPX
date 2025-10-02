@@ -24,6 +24,11 @@ namespace ClientsDataModel
         [StringLength(50)]
         public string no_poliza { get; set; }
 
+        [StringLength(30)]
+        public string serie { get; set; }
+
+        public short? ano { get; set; }
+
         //[Key]
         [Column(Order = 3)]
         public DateTime fech_inicio { get; set; }
@@ -36,10 +41,10 @@ namespace ClientsDataModel
         public DateTime? nxt_pago { get; set; }
 
         [StringLength(250)]
-        public string uid_prodpol { get; set; }
+        public string uid_product { get; set; }
 
         [StringLength(50)]
-        public string prodpol { get; set; }
+        public string Producto { get; set; }
 
         //[Key]
         [Column(Order = 4)]
@@ -54,6 +59,10 @@ namespace ClientsDataModel
 
         [StringLength(7)]
         public string estatus { get; set; }
-        //public int? estatus { get; set; }
+        public string nota { get; set; }
+
+        [Column(Order = 5)]
+        [StringLength(6)]
+        public string Evento { get; set; }
     }
 }
