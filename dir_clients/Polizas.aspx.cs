@@ -323,6 +323,23 @@ namespace dir_clients
             gvPolizas.DataBind();
 
         }
+        protected void gvPolizas_CustomJSProperties(object sender, ASPxGridViewClientJSPropertiesEventArgs e)
+        {
+            ASPxGridView grid = (ASPxGridView)sender;
+            var dict = new System.Collections.Generic.Dictionary<int, object>();
+
+            // Obtenemos los valores de la página actual de forma eficiente
+            // Esto funciona perfectamente con EntityServerMode
+            System.Collections.Generic.List<object> rowValues = grid.GetCurrentPageRowValues("no_poliza");
+            int startIndex = grid.VisibleStartIndex;
+
+            for (int i = 0; i < rowValues.Count; i++)
+            {
+                dict[startIndex + i] = rowValues[i];
+            }
+
+            e.Properties["cpPolizas"] = dict;
+        }
 
         [WebMethod]
         public static string CancelarPoliza(string uidPoliza, string nota)
@@ -346,6 +363,20 @@ namespace dir_clients
             catch (Exception ex)
             {
                 return "Error: " + ex.Message;
+            }
+        }
+
+        protected void gvPolizas_AfterPerformCallback(object sender, ASPxGridViewAfterPerformCallbackEventArgs e)
+        {
+            // Verificamos si la acción que acaba de ocurrir fue un filtro o el uso del menú lateral
+            string callbackName = e.CallbackName.ToUpper();
+
+            if (callbackName.Contains("FILTER") || callbackName == "CUSTOMCALLBACK")
+            {
+                ASPxGridView grid = (ASPxGridView)sender;
+
+                // Limpia absolutamente todos los checkboxes seleccionados en todas las páginas
+                grid.Selection.UnselectAll();
             }
         }
     }

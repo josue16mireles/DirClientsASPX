@@ -28,13 +28,14 @@
             var enabled = gridView.GetSelectedRowCount() > 0;
             pageToolbar.GetItemByName("Export").SetEnabled(enabled);
 
-            // Solo habilitar el botón si el filtro lo permite
+            //Solo habilitar el botón si el filtro lo permite
             var editButton = pageToolbar.GetItemByName("Edit");
             if (currentFilter === "Vencida" || currentFilter === "Cancelada") {
                 editButton.SetEnabled(false);
             } else {
                 editButton.SetEnabled(gridView.GetFocusedRowIndex() !== -1);
             }
+
         }
 
         function onPageToolbarItemClick(s, e) {
@@ -63,32 +64,49 @@
                     break;
                 case "Delete":
                     var rowIndex = gridView.GetFocusedRowIndex();
-                    if (rowIndex < 0) {
-                        alert("Por favor, selecciona una póliza antes de cancelar.");
+                    // Validamos que realmente tengamos una póliza capturada
+                    if (!uidPolizaSeleccionada || gridView.GetFocusedRowIndex() < 0) {
+                        alert("Por favor, seleccione una póliza antes de cancelar.");
                         break;
                     }
+                    // Si number_poliza sigue null por el filtro, intentamos recuperarlo de la propiedad
+                    if (!number_poliza && gridView.cpPolizas) {
+                        number_poliza = gridView.cpPolizas[rowIndex];
+                    }
 
-                    // Obtener el UID directamente desde la clave primaria
+                    txtCancelReason.SetText("");
+                    lblCancelReason.SetText("Motivo de cancelación de la póliza: " + (number_poliza || "N/A"));
                     uidPolizaSeleccionada = gridView.GetRowKey(rowIndex);
 
-                    // Limpiar el campo de texto antes de mostrar el popup
-                    txtCancelReason.SetText("");
+                    popupCancelPol.Show();
 
-                    var polizaSeleccionada = gridView.GetRowValues(gridView.GetFocusedRowIndex(), 'no_poliza', function (value) {
-                        if (!value || value.length < 1) {
-                            alert("No se pudieron obtener el número de la póliza.");
-                            return;
-                        }
-                        lblCancelReason.SetText("Motivo de cancelación de la póliza: " + value);
-                        number_poliza = value;
-                        popupCancelPol.Show();
-                    });
                     break;
                 case "Export":
                     __doPostBack('ExportToPdf', '');
                     break;
             }
         }
+
+        function onFocusedRowChanged(s, e) {
+            var rowIndex = s.GetFocusedRowIndex();
+            if (rowIndex >= 0) {
+                // Obtener la llave es instantáneo porque está en el cliente
+                uidPolizaSeleccionada = s.GetRowKey(rowIndex);
+
+                // LEER DESDE LA PROPIEDAD PERSONALIZADA (Sin callback)
+                if (s.cpPolizas && s.cpPolizas[rowIndex] !== undefined) {
+                    number_poliza = s.cpPolizas[rowIndex];
+                } else {
+                    // Si por algo no está en el diccionario (filas recién creadas), 
+                    // podrías dejarlo vacío o intentar GetRowValues como último recurso
+                    number_poliza = "Consultando...";
+                    s.GetRowValues(rowIndex, 'no_poliza', function (value) {
+                        number_poliza = value;
+                    });
+                }
+            }
+        }
+
         function onFiltersNavBarItemClick(s, e) {
             var filters = {
                 All: "",
@@ -102,6 +120,7 @@
 
             // Deselecciona todas las filas seleccionadas
             gridView.UnselectAllRowsOnPage();
+            //gridView.UnselectRows();
 
             gridView.PerformCallback(e.item.name); // Llama al servidor para ajustar columnas
 
@@ -182,6 +201,17 @@
         }
         function onGridEndCallback(s, e) {
             lastEditedCpy = -1;
+
+            // Si después de filtrar no hay fila enfocada o cambió, reseteamos las variables
+            var index = s.GetFocusedRowIndex();
+            if (index < 0) {
+                uidPolizaSeleccionada = null;
+                number_poliza = null;
+            } else {
+                // Si hay una fila enfocada nueva tras el filtro, forzamos la actualización de datos
+                onFocusedRowChanged(s, e);
+            }
+            //updateToolbarButtonsState();
         }
         function onFocusedCellChanging(s, e) {
             e.cancel = cmbProd.InCallback();
@@ -297,9 +327,9 @@
             <dx:MenuItem Name="Export" Text="Exportar" Alignment="Right" AdaptivePriority="2">
                 <Image Url="Content/Images/export.svg" />
             </dx:MenuItem>
-            <dx:MenuItem Name="ToggleFilterPanel" Text="" GroupName="Filter" Alignment="Right" AdaptivePriority="1">
+            <%--<dx:MenuItem Name="ToggleFilterPanel" Text="" GroupName="Filter" Alignment="Right" AdaptivePriority="1">
                 <Image Url="Content/Images/search.svg" UrlChecked="Content/Images/search-selected.svg" />
-            </dx:MenuItem>
+            </dx:MenuItem>--%>
         </Items>
     </dx:ASPxMenu>
     <dx:ASPxPanel runat="server" ID="FilterPanel" ClientInstanceName="filterPanel" Collapsible="True" CssClass="filter-panel">
@@ -327,13 +357,13 @@
                 
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
 
-                    <dx:ASPxButton ID="btnConfirmCancel" runat="server" Text="Confirmar Cancelación" AutoPostBack="false">
+                    <dx:ASPxButton ID="btnConfirmCancel" runat="server" Text="Confirmar Cancelación" AutoPostBack="false" UseSubmitBehavior="false">
                         <ClientSideEvents Click="function(s, e) { 
                             cancelarPoliza();
                             popupCancelPol.Hide();
                         }" />
                     </dx:ASPxButton>
-                    <dx:ASPxButton ID="btnCerrarPopup" runat="server" Text="Cerrar" AutoPostBack="false">
+                    <dx:ASPxButton ID="btnCerrarPopup" runat="server" Text="Cerrar" AutoPostBack="false" UseSubmitBehavior="false">
                         <ClientSideEvents Click="function(s, e) { popupCancelPol.Hide(); }" />
                     </dx:ASPxButton>
                 </div>
@@ -356,17 +386,19 @@
         DataSourceID="dsPolizas"
         OnRowUpdating="GridView_RowUpdating" 
         OnRowInserting="GridView_RowInserting" 
+        OnCustomJSProperties="gvPolizas_CustomJSProperties"
+        OnAfterPerformCallback="gvPolizas_AfterPerformCallback"
         AutoGenerateColumns="False" 
         OnCellEditorInitialize="GridView_CellEditorInitialize"
         OnCustomErrorText="GridView_CustomErrorText" 
         OnCommandButtonInitialize="GridView_CommandButtonInitialize"
         OnCustomCallback="gvPolizas_CustomCallback" >
 
-        <ClientSideEvents Init="onGridViewInit" SelectionChanged="onGridViewSelectionChanged" BatchEditStartEditing="onBatchEditStartEditing" EndCallback="onGridEndCallback" FocusedCellChanging="onFocusedCellChanging" />
+        <ClientSideEvents FocusedRowChanged="onFocusedRowChanged" Init="onGridViewInit" SelectionChanged="onGridViewSelectionChanged" BatchEditStartEditing="onBatchEditStartEditing" EndCallback="onGridEndCallback" FocusedCellChanging="onFocusedCellChanging" />
 
         <SettingsDataSecurity AllowReadUnlistedFieldsFromClientApi="True" />
         <SettingsResizing ColumnResizeMode="Control" />
-        <SettingsBehavior AllowFocusedRow="true" AllowSelectByRowClick="true" AllowEllipsisInText="true" AllowDragDrop="false"/>
+        <SettingsBehavior AllowFocusedRow="true" AllowSelectByRowClick="false" AllowEllipsisInText="true" AllowDragDrop="false"/>
         <SettingsEditing Mode="Batch" UseFormLayout="false" NewItemRowPosition="Top">
             <BatchEditSettings EditMode="Row" />
         </SettingsEditing> 
@@ -384,7 +416,7 @@
         </Styles>
         <Paddings PaddingTop="0px" />
         <Columns>
-            <dx:GridViewCommandColumn ShowSelectCheckbox="True" SelectAllCheckboxMode="Page" VisibleIndex="13" FixedStyle="Left" Width="52"></dx:GridViewCommandColumn>
+            <dx:GridViewCommandColumn ShowSelectCheckbox="true" SelectAllCheckboxMode="Page" VisibleIndex="13" FixedStyle="Left" Width="52"></dx:GridViewCommandColumn>
             <dx:GridViewDataTextColumn FieldName="uid_poliza" ReadOnly="True" Visible="false" VisibleIndex="0">
             </dx:GridViewDataTextColumn>
             <dx:GridViewDataComboBoxColumn Name="ColNombre" Caption="Nombre" FieldName="uid_client" ShowInCustomizationForm="True" VisibleIndex="2" Width="350px">
@@ -443,6 +475,6 @@
         </Columns>
 
     </dx:ASPxGridView>
-    <dx:ASPxGridViewExporter ID="gridExporter" runat="server" GridViewID="gvPolizas" BottomMargin="-3" LeftMargin="3" RightMargin="3" TopMargin="-3" Landscape="True" />
+    <dx:ASPxGridViewExporter ID="gridExporter" runat="server" GridViewID="gvPolizas" BottomMargin="0" LeftMargin="0" RightMargin="0" TopMargin="0" Landscape="True" />
 
 </asp:Content>
